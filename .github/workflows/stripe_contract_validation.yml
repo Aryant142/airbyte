@@ -1,0 +1,76 @@
+name: Stripe Connector Contract Validation
+
+on:
+  push:
+    paths:
+      - 'airbyte-integrations/connectors/source-stripe/**'
+      - 'specmatic_test/**'
+      - '.github/workflows/stripe_contract_validation.yml'
+  pull_request:
+    paths:
+      - 'airbyte-integrations/connectors/source-stripe/**'
+      - 'specmatic_test/**'
+      - '.github/workflows/stripe_contract_validation.yml'
+
+jobs:
+  validate-contract:
+    name: Run Contract Validation
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install Specmatic
+        run: npm install -g specmatic@2.49.1
+
+      - name: Start Specmatic Mock Server (Official Contract)
+        run: |
+          specmatic mock --port 9000 &
+          echo "Waiting for mock server to initialize..."
+          sleep 5
+
+      - name: Run Validation against Official Spec
+        run: |
+          docker run --rm \
+            --add-host=host.docker.internal:host-gateway \
+            -v "${{ github.workspace }}:/workspace" \
+            python:3.11-slim \
+            sh -c "pip install pytest freezegun pytest-mock requests-mock mock airbyte-cdk==6.61.6 requests pyyaml jsonschema && python /workspace/airbyte-integrations/connectors/source-stripe/unit_tests/run_validation.py --spec-path /workspace/specmatic_test/specs/stripe-official.json --report-output /workspace/specmatic_test/official_report.md --host host.docker.internal"
+        # We allow failure here if contract validation is expected to find issues,
+        # but for CI we want to upload artifacts regardless of success/failure
+        continue-on-error: true
+
+      - name: Stop Mock Server
+        run: |
+          pkill -f "specmatic mock" || true
+          sleep 2
+
+      - name: Start Specmatic Mock Server (Drifted Contract)
+        run: |
+          sed -i 's/stripe-official.json/stripe-drifted.json/' specmatic.yaml
+          specmatic mock --port 9000 &
+          echo "Waiting for mock server to initialize..."
+          sleep 5
+
+      - name: Run Validation against Drifted Spec
+        run: |
+          docker run --rm \
+            --add-host=host.docker.internal:host-gateway \
+            -v "${{ github.workspace }}:/workspace" \
+            python:3.11-slim \
+            sh -c "pip install pytest freezegun pytest-mock requests-mock mock airbyte-cdk==6.61.6 requests pyyaml jsonschema && python /workspace/airbyte-integrations/connectors/source-stripe/unit_tests/run_validation.py --spec-path /workspace/specmatic_test/specs/stripe-drifted.json --report-output /workspace/specmatic_test/drift_report.md --host host.docker.internal"
+        continue-on-error: true
+
+      - name: Upload Validation Reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: contract-validation-reports
+          path: |
+            specmatic_test/official_report.md
+            specmatic_test/drift_report.md
