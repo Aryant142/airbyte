@@ -3,14 +3,14 @@ name: Stripe Connector Contract Validation
 on:
   push:
     paths:
-      - 'airbyte-integrations/connectors/source-stripe/**'
-      - 'specmatic_test/**'
-      - '.github/workflows/stripe_contract_validation.yml'
+      - "airbyte-integrations/connectors/source-stripe/**"
+      - "specmatic_test/**"
+      - ".github/workflows/stripe_contract_validation.yml"
   pull_request:
     paths:
-      - 'airbyte-integrations/connectors/source-stripe/**'
-      - 'specmatic_test/**'
-      - '.github/workflows/stripe_contract_validation.yml'
+      - "airbyte-integrations/connectors/source-stripe/**"
+      - "specmatic_test/**"
+      - ".github/workflows/stripe_contract_validation.yml"
 
 jobs:
   validate-contract:
