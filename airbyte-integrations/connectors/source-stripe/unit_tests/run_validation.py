@@ -1,12 +1,16 @@
-import os
-import sys
+# Copyright (c) 2025 Airbyte, Inc., all rights reserved.
+
 import argparse
 import json
-import yaml
-import jsonschema
-from jsonschema import RefResolver, Draft7Validator
+import os
+import sys
 from pathlib import Path
+
+import jsonschema
 import requests
+import yaml
+from jsonschema import Draft7Validator, RefResolver
+
 
 # Setup search path so we can resolve conftest and other modules correctly
 current_dir = Path(__file__).resolve().parent
@@ -15,9 +19,11 @@ sys.path.insert(0, str(connector_dir))
 sys.path.insert(0, str(current_dir))
 
 from conftest import get_source
-from airbyte_cdk.test.catalog_builder import CatalogBuilder
+
 from airbyte_cdk.models import SyncMode
+from airbyte_cdk.test.catalog_builder import CatalogBuilder
 from airbyte_cdk.test.entrypoint_wrapper import read
+
 
 # Stream name to OpenAPI schema component name mapping
 STREAM_MAPPING = {
@@ -27,8 +33,9 @@ STREAM_MAPPING = {
     "payment_intents": "payment_intent",
     "products": "product",
     "prices": "price",
-    "refunds": "refund"
+    "refunds": "refund",
 }
+
 
 def fix_openapi_schema(schema):
     """
@@ -37,7 +44,7 @@ def fix_openapi_schema(schema):
     """
     if not isinstance(schema, dict):
         return schema
-    
+
     fixed = {}
     for k, v in schema.items():
         if k == "nullable" and v is True:
@@ -48,7 +55,6 @@ def fix_openapi_schema(schema):
             fixed[k] = [fix_openapi_schema(item) if isinstance(item, dict) else item for item in v]
         else:
             fixed[k] = v
-            
     if schema.get("nullable") is True:
         if "type" in schema:
             t = schema["type"]
@@ -65,14 +71,14 @@ def fix_openapi_schema(schema):
             one_of = fixed.get("oneOf", [])
             if not any(isinstance(item, dict) and item.get("type") == "null" for item in one_of):
                 fixed["oneOf"] = one_of + [{"type": "null"}]
-            
     fixed.pop("nullable", None)
     fixed.pop("discriminator", None)
     fixed.pop("xml", None)
     fixed.pop("example", None)
     fixed.pop("externalDocs", None)
-    
+
     return fixed
+
 
 def validate_record(record_data, schema_name, spec):
     """
@@ -81,16 +87,17 @@ def validate_record(record_data, schema_name, spec):
     schemas = spec.get("components", {}).get("schemas", {})
     if schema_name not in schemas:
         return [f"Schema '{schema_name}' not found in OpenAPI specification components."]
-        
+
     schema = schemas[schema_name]
     resolver = RefResolver.from_schema(spec)
     validator = Draft7Validator(schema, resolver=resolver)
-    
+
     errors = []
     for error in validator.iter_errors(record_data):
         path = ".".join([str(p) for p in error.path]) if error.path else "root"
         errors.append(f"Field '{path}': {error.message}")
     return errors
+
 
 def main():
     parser = argparse.ArgumentParser(description="Validate Airbyte Stripe Connector against OpenAPI contract")
@@ -117,18 +124,14 @@ def main():
     account_id = "acct_mock"
     base_url = f"http://{args.host}:{args.port}/v1"
 
-    config = {
-        "client_secret": client_secret,
-        "account_id": account_id,
-        "url_base": f"{base_url}/"
-    }
+    config = {"client_secret": client_secret, "account_id": account_id, "url_base": f"{base_url}/"}
 
     results = {}
     violations = []
 
     for stream_name, schema_name in STREAM_MAPPING.items():
         print(f"\n========================================\nValidating Stream: {stream_name}\n========================================")
-        
+
         request_ok = True
         response_ok = True
         stream_violations = []
@@ -143,10 +146,10 @@ def main():
             source = get_source(config=config)
             actual_messages = read(source, config=config, catalog=single_catalog)
             print("HTTP request conforms to Specmatic contract (200 OK).")
-            
+
             # Extract records from connector output
             records = [msg.record.data for msg in actual_messages.records]
-            
+
             if not records:
                 response_ok = False
                 stream_violations.append("Response validation skipped: Connector returned no records.")
@@ -164,16 +167,16 @@ def main():
                     response_ok = False
                     for err in record_errors:
                         stream_violations.append(f"**Response Schema Mismatch**: {err}")
-                        
+
         except Exception as e:
             request_ok = False
             response_ok = False
-            
+
             # Check if this is an HTTP error with a response body (e.g. from Specmatic mock)
             err_text = ""
             if hasattr(e, "response") and e.response is not None:
                 err_text = e.response.text
-                
+
             if err_text:
                 print(f"Connector request failed contract validation (400 Bad Request): {err_text}")
                 stream_violations.append(f"**Request Error**: Specmatic mock server validation failed.\nDetail:\n```json\n{err_text}\n```")
@@ -181,11 +184,11 @@ def main():
                 err_msg = str(e)
                 print(f"Connector read failed: {err_msg}")
                 stream_violations.append(f"**Connector Error**: {err_msg}")
-                
+
         req_status = "✅" if request_ok else "❌"
         resp_status = "✅" if response_ok else "❌"
         status_text = "PASS" if (request_ok and response_ok) else "FAIL"
-        
+
         results[stream_name] = {"request": req_status, "response": resp_status, "status": status_text}
         if stream_violations:
             violations.append((stream_name, stream_violations))
@@ -193,7 +196,7 @@ def main():
     # Generate Markdown Report
     print(f"\nWriting validation report to: {args.report_output}")
     os.makedirs(os.path.dirname(args.report_output), exist_ok=True)
-    
+
     overall_status = "PASS"
     for r in results.values():
         if r["status"] == "FAIL":
@@ -203,14 +206,14 @@ def main():
     with open(args.report_output, "w", encoding="utf-8") as f:
         f.write("# Contract Validation Report\n\n")
         f.write(f"**Overall Build Status: {overall_status}**\n\n")
-        
+
         f.write("## Streams Tested\n\n")
         f.write("| Stream | Request Validation | Response Schema Validation | Status |\n")
         f.write("| :--- | :---: | :---: | :---: |\n")
         for stream_name, r in results.items():
             f.write(f"| {stream_name} | {r['request']} | {r['response']} | **{r['status']}** |\n")
         f.write("\n")
-        
+
         f.write("## Contract Violations\n\n")
         if not violations:
             f.write("✅ No contract violations or schema mismatches detected! All streams conform fully to the specification.\n")
@@ -220,9 +223,10 @@ def main():
                 for v in stream_v:
                     f.write(f"- {v}\n")
                 f.write("\n")
-                
+
     print(f"Validation finished. Overall status: {overall_status}")
     sys.exit(0 if overall_status == "PASS" else 1)
+
 
 if __name__ == "__main__":
     main()
