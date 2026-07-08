@@ -72,6 +72,10 @@ jobs:
     name: "Call Connector CI Tests"
     needs: [get-context, post-start-comment]
     if: needs.get-context.outputs.skip != 'true'
+    permissions:
+      checks: write
+      pull-requests: write
+      contents: read
     uses: ./.github/workflows/connector-ci-checks.yml
     with:
       repo: "${{ inputs.repo || github.repository }}"
