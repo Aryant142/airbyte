@@ -37,7 +37,7 @@ jobs:
         if: >
           always() && steps.format-check.outcome == 'failure' &&
           github.ref == 'refs/heads/master' &&
-          github.event.pull_request.head.repo.fork == false
+          github.repository == 'airbytehq/airbyte'
         id: match-github-to-slack-user
         uses: ./.github/actions/match-github-to-slack-user
         env:
@@ -48,7 +48,7 @@ jobs:
         if: >
           always() && steps.format-check.outcome == 'failure' &&
           github.ref == 'refs/heads/master' &&
-          github.event.pull_request.head.repo.fork == false
+          github.repository == 'airbytehq/airbyte'
         uses: slackapi/slack-github-action@91efab103c0de0a537f72a35f6b8cda0ee76bf0a # v2.1.1
         with:
           token: ${{ secrets.SLACK_BOT_TOKEN_AIRBYTE_TEAM }}
