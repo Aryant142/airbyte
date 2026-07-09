@@ -33,14 +33,18 @@ Instead of just checking if the connector runs successfully, we run the actual A
 ## How to Run Validation Locally
 
 ### 1. Requirements
+
 Ensure you have the following installed:
+
 - Node.js v18+
 - Python 3.11+
 - Docker
 - Specmatic v2.49.1+: `npm install -g specmatic@2.49.1`
 
 ### 2. Flatten deepObject Query Parameters
+
 First, run the spec modifier script to prepare the specifications for Specmatic mock matching:
+
 ```bash
 python specmatic_test/fix_spec.py
 ```
@@ -54,13 +58,22 @@ python specmatic_test/fix_spec.py
    specmatic mock --port 9000
    ```
 2. Run the validation runner using Docker:
-   ```bash
-   docker run --rm \
-     --add-host=host.docker.internal:host-gateway \
-     -v "${PWD}:/workspace" \
-     python:3.11-slim \
-     sh -c "pip install pytest freezegun pytest-mock requests-mock mock airbyte-cdk==6.61.6 requests pyyaml jsonschema && python /workspace/airbyte-integrations/connectors/source-stripe/unit_tests/run_validation.py --spec-path /workspace/specmatic_test/specs/stripe-official.json --report-output /workspace/specmatic_test/official_report.md --host host.docker.internal"
-   ```
+   - **macOS / Linux (Bash/Zsh)**:
+     ```bash
+     docker run --rm \
+       --add-host=host.docker.internal:host-gateway \
+       -v "$(pwd):/workspace" \
+       python:3.11-slim \
+       sh -c "pip install pytest freezegun pytest-mock requests-mock mock airbyte-cdk==6.61.6 requests pyyaml jsonschema && python /workspace/airbyte-integrations/connectors/source-stripe/unit_tests/run_validation.py --spec-path /workspace/specmatic_test/specs/stripe-official.json --report-output /workspace/specmatic_test/official_report.md --host host.docker.internal"
+     ```
+   - **Windows (PowerShell)**:
+     ```powershell
+     docker run --rm `
+       --add-host=host.docker.internal:host-gateway `
+       -v "${PWD}:/workspace" `
+       python:3.11-slim `
+       sh -c "pip install pytest freezegun pytest-mock requests-mock mock airbyte-cdk==6.61.6 requests pyyaml jsonschema && python /workspace/airbyte-integrations/connectors/source-stripe/unit_tests/run_validation.py --spec-path /workspace/specmatic_test/specs/stripe-official.json --report-output /workspace/specmatic_test/official_report.md --host host.docker.internal"
+     ```
 3. Inspect the report at `specmatic_test/official_report.md`.
 
 ### 4. Run Validation against the Drifted Stripe Specification
@@ -72,12 +85,21 @@ To test drift detection, temporarily update `specmatic.yaml` — change the spec
    specmatic mock --port 9000
    ```
 2. Run the validation runner targeting the drifted spec:
-   ```bash
-   docker run --rm \
-     --add-host=host.docker.internal:host-gateway \
-     -v "${PWD}:/workspace" \
-     python:3.11-slim \
-     sh -c "pip install pytest freezegun pytest-mock requests-mock mock airbyte-cdk==6.61.6 requests pyyaml jsonschema && python /workspace/airbyte-integrations/connectors/source-stripe/unit_tests/run_validation.py --spec-path /workspace/specmatic_test/specs/stripe-drifted.json --report-output /workspace/specmatic_test/drift_report.md --host host.docker.internal"
-   ```
+   - **macOS / Linux (Bash/Zsh)**:
+     ```bash
+     docker run --rm \
+       --add-host=host.docker.internal:host-gateway \
+       -v "$(pwd):/workspace" \
+       python:3.11-slim \
+       sh -c "pip install pytest freezegun pytest-mock requests-mock mock airbyte-cdk==6.61.6 requests pyyaml jsonschema && python /workspace/airbyte-integrations/connectors/source-stripe/unit_tests/run_validation.py --spec-path /workspace/specmatic_test/specs/stripe-drifted.json --report-output /workspace/specmatic_test/drift_report.md --host host.docker.internal"
+     ```
+   - **Windows (PowerShell)**:
+     ```powershell
+     docker run --rm `
+       --add-host=host.docker.internal:host-gateway `
+       -v "${PWD}:/workspace" `
+       python:3.11-slim `
+       sh -c "pip install pytest freezegun pytest-mock requests-mock mock airbyte-cdk==6.61.6 requests pyyaml jsonschema && python /workspace/airbyte-integrations/connectors/source-stripe/unit_tests/run_validation.py --spec-path /workspace/specmatic_test/specs/stripe-drifted.json --report-output /workspace/specmatic_test/drift_report.md --host host.docker.internal"
+     ```
 3. Inspect the drift report at `specmatic_test/drift_report.md`.
 4. Revert `specmatic.yaml` back to `stripe-official.json` when done.
