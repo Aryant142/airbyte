@@ -4,11 +4,83 @@ import json
 import os
 
 
+def add_accounts_endpoint(spec) -> bool:
+    if "/v1/accounts" not in spec.get("paths", {}):
+        spec["paths"]["/v1/accounts"] = {
+            "get": {
+                "description": "Returns a list of accounts",
+                "operationId": "GetAccounts",
+                "parameters": [
+                    {
+                        "description": "A limit on the number of objects to be returned.",
+                        "in": "query",
+                        "name": "limit",
+                        "required": False,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "description": "A cursor for use in pagination.",
+                        "in": "query",
+                        "name": "starting_after",
+                        "required": False,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "items": {
+                                                "$ref": "#/components/schemas/account"
+                                            },
+                                            "type": "array"
+                                        },
+                                        "has_more": {
+                                            "type": "boolean"
+                                        },
+                                        "object": {
+                                            "enum": [
+                                                "list"
+                                            ],
+                                            "type": "string"
+                                        },
+                                        "url": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "data",
+                                        "has_more",
+                                        "object",
+                                        "url"
+                                    ],
+                                    "type": "object"
+                                }
+                            }
+                        },
+                        "description": "Successful response."
+                    }
+                }
+            }
+        }
+        print("Injected /v1/accounts endpoint into paths.")
+        return True
+    return False
+
+
 def flatten_deep_objects(spec_path):
     print(f"Reading specification from {spec_path}...")
     with open(spec_path, "r", encoding="utf-8") as f:
         spec = json.load(f)
 
+    spec_modified = add_accounts_endpoint(spec)
     modified_count = 0
     for path, path_item in spec.get("paths", {}).items():
         for method, op in path_item.items():
@@ -64,12 +136,12 @@ def flatten_deep_objects(spec_path):
 
             op["parameters"] = new_parameters
 
-    if modified_count > 0:
-        print(f"Writing updated specification back to {spec_path} (added {modified_count} flat parameters)...")
+    if modified_count > 0 or spec_modified:
+        print(f"Writing updated specification back to {spec_path} (added {modified_count} flat parameters, accounts={spec_modified})...")
         with open(spec_path, "w", encoding="utf-8") as f:
             json.dump(spec, f, indent=2)
     else:
-        print("No deepObject parameters required flattening.")
+        print("No deepObject parameters required flattening and /v1/accounts already exists.")
 
 
 if __name__ == "__main__":
