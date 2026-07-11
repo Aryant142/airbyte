@@ -41498,6 +41498,78 @@
             "description": "Flat query parameter representing created.lte"
           },
           {
+            "name": "created[gt]",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Flat query parameter representing created.gt"
+          },
+          {
+            "name": "created[gte]",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Flat query parameter representing created.gte"
+          },
+          {
+            "name": "created[lt]",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Flat query parameter representing created.lt"
+          },
+          {
+            "name": "created[lte]",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Flat query parameter representing created.lte"
+          },
+          {
+            "name": "created[gt]",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Flat query parameter representing created.gt"
+          },
+          {
+            "name": "created[gte]",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Flat query parameter representing created.gte"
+          },
+          {
+            "name": "created[lt]",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Flat query parameter representing created.lt"
+          },
+          {
+            "name": "created[lte]",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Flat query parameter representing created.lte"
+          },
+          {
             "description": "Only return charges for the customer specified by this customer ID.",
             "in": "query",
             "name": "customer",
@@ -41532,6 +41604,32 @@
               "type": "array"
             },
             "style": "deepObject"
+          },
+          {
+            "name": "expand[]",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "items": {
+                "maxLength": 5000,
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "description": "Flat query parameter representing expand array"
+          },
+          {
+            "name": "expand[]",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "items": {
+                "maxLength": 5000,
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "description": "Flat query parameter representing expand array"
           },
           {
             "name": "expand[]",
@@ -42573,6 +42671,78 @@
             "description": "Flat query parameter representing created.lte"
           },
           {
+            "name": "created[gt]",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Flat query parameter representing created.gt"
+          },
+          {
+            "name": "created[gte]",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Flat query parameter representing created.gte"
+          },
+          {
+            "name": "created[lt]",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Flat query parameter representing created.lt"
+          },
+          {
+            "name": "created[lte]",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Flat query parameter representing created.lte"
+          },
+          {
+            "name": "created[gt]",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Flat query parameter representing created.gt"
+          },
+          {
+            "name": "created[gte]",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Flat query parameter representing created.gte"
+          },
+          {
+            "name": "created[lt]",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Flat query parameter representing created.lt"
+          },
+          {
+            "name": "created[lte]",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Flat query parameter representing created.lte"
+          },
+          {
             "description": "A case-sensitive filter on the list based on the customer's `email` field. The value must be a string.",
             "in": "query",
             "name": "email",
@@ -42608,6 +42778,32 @@
               "type": "array"
             },
             "style": "deepObject"
+          },
+          {
+            "name": "expand[]",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "items": {
+                "maxLength": 5000,
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "description": "Flat query parameter representing expand array"
+          },
+          {
+            "name": "expand[]",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "items": {
+                "maxLength": 5000,
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "description": "Flat query parameter representing expand array"
           },
           {
             "name": "expand[]",
@@ -43862,6 +44058,78 @@
             "description": "Flat query parameter representing created.lte"
           },
           {
+            "name": "created[gt]",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Flat query parameter representing created.gt"
+          },
+          {
+            "name": "created[gte]",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Flat query parameter representing created.gte"
+          },
+          {
+            "name": "created[lt]",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Flat query parameter representing created.lt"
+          },
+          {
+            "name": "created[lte]",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Flat query parameter representing created.lte"
+          },
+          {
+            "name": "created[gt]",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Flat query parameter representing created.gt"
+          },
+          {
+            "name": "created[gte]",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Flat query parameter representing created.gte"
+          },
+          {
+            "name": "created[lt]",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Flat query parameter representing created.lt"
+          },
+          {
+            "name": "created[lte]",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Flat query parameter representing created.lte"
+          },
+          {
             "description": "Only return invoices for the customer specified by this customer ID.",
             "in": "query",
             "name": "customer",
@@ -44312,6 +44580,78 @@
             "description": "Flat query parameter representing due_date.lte"
           },
           {
+            "name": "due_date[gt]",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Flat query parameter representing due_date.gt"
+          },
+          {
+            "name": "due_date[gte]",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Flat query parameter representing due_date.gte"
+          },
+          {
+            "name": "due_date[lt]",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Flat query parameter representing due_date.lt"
+          },
+          {
+            "name": "due_date[lte]",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Flat query parameter representing due_date.lte"
+          },
+          {
+            "name": "due_date[gt]",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Flat query parameter representing due_date.gt"
+          },
+          {
+            "name": "due_date[gte]",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Flat query parameter representing due_date.gte"
+          },
+          {
+            "name": "due_date[lt]",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Flat query parameter representing due_date.lt"
+          },
+          {
+            "name": "due_date[lte]",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Flat query parameter representing due_date.lte"
+          },
+          {
             "description": "A cursor for use in pagination. `ending_before` is an object ID that defines your place in the list. For instance, if you make a list request and receive 100 objects, starting with `obj_bar`, your subsequent call can include `ending_before=obj_bar` in order to fetch the previous page of the list.",
             "in": "query",
             "name": "ending_before",
@@ -44336,6 +44676,32 @@
               "type": "array"
             },
             "style": "deepObject"
+          },
+          {
+            "name": "expand[]",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "items": {
+                "maxLength": 5000,
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "description": "Flat query parameter representing expand array"
+          },
+          {
+            "name": "expand[]",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "items": {
+                "maxLength": 5000,
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "description": "Flat query parameter representing expand array"
           },
           {
             "name": "expand[]",
@@ -46147,6 +46513,78 @@
             "description": "Flat query parameter representing created.lte"
           },
           {
+            "name": "created[gt]",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Flat query parameter representing created.gt"
+          },
+          {
+            "name": "created[gte]",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Flat query parameter representing created.gte"
+          },
+          {
+            "name": "created[lt]",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Flat query parameter representing created.lt"
+          },
+          {
+            "name": "created[lte]",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Flat query parameter representing created.lte"
+          },
+          {
+            "name": "created[gt]",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Flat query parameter representing created.gt"
+          },
+          {
+            "name": "created[gte]",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Flat query parameter representing created.gte"
+          },
+          {
+            "name": "created[lt]",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Flat query parameter representing created.lt"
+          },
+          {
+            "name": "created[lte]",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Flat query parameter representing created.lte"
+          },
+          {
             "description": "Only return PaymentIntents for the customer that this customer ID specifies.",
             "in": "query",
             "name": "customer",
@@ -46193,6 +46631,32 @@
               "type": "array"
             },
             "style": "deepObject"
+          },
+          {
+            "name": "expand[]",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "items": {
+                "maxLength": 5000,
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "description": "Flat query parameter representing expand array"
+          },
+          {
+            "name": "expand[]",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "items": {
+                "maxLength": 5000,
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "description": "Flat query parameter representing expand array"
           },
           {
             "name": "expand[]",
@@ -50926,6 +51390,78 @@
             "description": "Flat query parameter representing created.lte"
           },
           {
+            "name": "created[gt]",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Flat query parameter representing created.gt"
+          },
+          {
+            "name": "created[gte]",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Flat query parameter representing created.gte"
+          },
+          {
+            "name": "created[lt]",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Flat query parameter representing created.lt"
+          },
+          {
+            "name": "created[lte]",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Flat query parameter representing created.lte"
+          },
+          {
+            "name": "created[gt]",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Flat query parameter representing created.gt"
+          },
+          {
+            "name": "created[gte]",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Flat query parameter representing created.gte"
+          },
+          {
+            "name": "created[lt]",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Flat query parameter representing created.lt"
+          },
+          {
+            "name": "created[lte]",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Flat query parameter representing created.lte"
+          },
+          {
             "description": "Only return prices for the given currency.",
             "in": "query",
             "name": "currency",
@@ -50961,6 +51497,32 @@
               "type": "array"
             },
             "style": "deepObject"
+          },
+          {
+            "name": "expand[]",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "items": {
+                "maxLength": 5000,
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "description": "Flat query parameter representing expand array"
+          },
+          {
+            "name": "expand[]",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "items": {
+                "maxLength": 5000,
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "description": "Flat query parameter representing expand array"
           },
           {
             "name": "expand[]",
@@ -52070,6 +52632,78 @@
             "description": "Flat query parameter representing created.lte"
           },
           {
+            "name": "created[gt]",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Flat query parameter representing created.gt"
+          },
+          {
+            "name": "created[gte]",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Flat query parameter representing created.gte"
+          },
+          {
+            "name": "created[lt]",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Flat query parameter representing created.lt"
+          },
+          {
+            "name": "created[lte]",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Flat query parameter representing created.lte"
+          },
+          {
+            "name": "created[gt]",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Flat query parameter representing created.gt"
+          },
+          {
+            "name": "created[gte]",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Flat query parameter representing created.gte"
+          },
+          {
+            "name": "created[lt]",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Flat query parameter representing created.lt"
+          },
+          {
+            "name": "created[lte]",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Flat query parameter representing created.lte"
+          },
+          {
             "description": "A cursor for use in pagination. `ending_before` is an object ID that defines your place in the list. For instance, if you make a list request and receive 100 objects, starting with `obj_bar`, your subsequent call can include `ending_before=obj_bar` in order to fetch the previous page of the list.",
             "in": "query",
             "name": "ending_before",
@@ -52094,6 +52728,32 @@
               "type": "array"
             },
             "style": "deepObject"
+          },
+          {
+            "name": "expand[]",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "items": {
+                "maxLength": 5000,
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "description": "Flat query parameter representing expand array"
+          },
+          {
+            "name": "expand[]",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "items": {
+                "maxLength": 5000,
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "description": "Flat query parameter representing expand array"
           },
           {
             "name": "expand[]",
@@ -53139,6 +53799,78 @@
             "description": "Flat query parameter representing created.lte"
           },
           {
+            "name": "created[gt]",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Flat query parameter representing created.gt"
+          },
+          {
+            "name": "created[gte]",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Flat query parameter representing created.gte"
+          },
+          {
+            "name": "created[lt]",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Flat query parameter representing created.lt"
+          },
+          {
+            "name": "created[lte]",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Flat query parameter representing created.lte"
+          },
+          {
+            "name": "created[gt]",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Flat query parameter representing created.gt"
+          },
+          {
+            "name": "created[gte]",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Flat query parameter representing created.gte"
+          },
+          {
+            "name": "created[lt]",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Flat query parameter representing created.lt"
+          },
+          {
+            "name": "created[lte]",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Flat query parameter representing created.lte"
+          },
+          {
             "description": "A cursor for use in pagination. `ending_before` is an object ID that defines your place in the list. For instance, if you make a list request and receive 100 objects, starting with `obj_bar`, your subsequent call can include `ending_before=obj_bar` in order to fetch the previous page of the list.",
             "in": "query",
             "name": "ending_before",
@@ -53162,6 +53894,32 @@
               "type": "array"
             },
             "style": "deepObject"
+          },
+          {
+            "name": "expand[]",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "items": {
+                "maxLength": 5000,
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "description": "Flat query parameter representing expand array"
+          },
+          {
+            "name": "expand[]",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "items": {
+                "maxLength": 5000,
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "description": "Flat query parameter representing expand array"
           },
           {
             "name": "expand[]",
