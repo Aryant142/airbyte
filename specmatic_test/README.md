@@ -29,7 +29,7 @@ Specmatic is used in this repository for two primary testing workflows:
  │   def test_...(http_mocker):           │
  │       http_mocker.get(                 │
  │           _request().build(),          │
- │           _response().build()  ← ─ ─ ─│─ ─ Static JSON template (hardcoded)
+ │           _response().build()  ← ─ ─ ─ │─ ─ Static JSON template (hardcoded)
  │       )                                │
  └───────────────┬────────────────────────┘
                  │ calls read()
