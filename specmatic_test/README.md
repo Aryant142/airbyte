@@ -141,7 +141,7 @@ Specmatic is used in this repository for two primary testing workflows:
 | | `test_transactions.py` | ✅ Migrated |
 | **POC** | `test_accounts.py` | ✅ Migrated (original POC) |
 
-**10 of 16 integration test files migrated. All migrated tests pass.**
+** All migrated tests pass.**
 
 ---
 
