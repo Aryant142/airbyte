@@ -1,129 +1,102 @@
 # Stripe Connector — OpenAPI Contract Validation & Specmatic Integration Tests
 
-This directory contains the tools, OpenAPI specifications, and scripts to perform automated OpenAPI contract validation for the Airbyte Stripe source connector, and to run integration tests backed by a live Specmatic contract mock server.
+This directory contains the tools, OpenAPI specifications, and scripts required to perform **automated OpenAPI contract validation** for the Airbyte Stripe source connector and to run **contract-driven integration tests** using a live **Specmatic** mock server.
 
-> **Requires**: Node.js 18+, Python 3.11+, Docker, Specmatic v2.49.1+
-
----
-
-## Architecture Overview
-
-Specmatic is used in this repository for two primary testing workflows:
-
-1. **Contract Validation Runner (`run_validation.py`)**: Runs full connector syncs, routing requests to the Specmatic mock server. Specmatic validates the connector's requests against the Stripe API contract and returns mocked records matching the OpenAPI response schema. The runner extracts these records and validates them against the schema components using Python's `jsonschema` library, outputting a markdown drift report.
-
-2. **Migrated Integration Tests**: Integration tests migrated from `HttpMocker`/`requests-mock` to `SpecmaticIntegrationTestCase`. During the test class lifecycle, the Specmatic server starts automatically, dynamic contract-validated expectations are registered, the connector runs, and the server shuts down. Specmatic validates every incoming HTTP request against the Stripe OpenAPI specification.
+> **Requirements**
+>
+> - Node.js 18+
+> - Python 3.11+
+> - Docker
+> - Specmatic v2.49.1+
 
 ---
 
-## Before vs After: Integration Test Architecture
+# Why?
 
-### ❌ Before — Old Workflow (HttpMocker / requests-mock)
+The Stripe connector originally relied on **HttpMocker** and **requests-mock**, where every integration test used manually maintained JSON responses.
 
-```
- ┌────────────────────────────────────────┐
- │         Integration Test               │
- │         (e.g. test_events.py)          │
- │                                        │
- │   @HttpMocker()                        │
- │   def test_...(http_mocker):           │
- │       http_mocker.get(                 │
- │           _request().build(),          │
- │           _response().build()  ← ─ ─ ─ │─ ─ Static JSON template (hardcoded)
- │       )                                │
- └───────────────┬────────────────────────┘
-                 │ calls read()
-                 ▼
- ┌────────────────────────────────────────┐
- │     Airbyte Stripe Connector           │
- │     (runs actual connector code)       │
- └───────────────┬────────────────────────┘
-                 │ HTTP GET /v1/events?...
-                 ▼
- ┌────────────────────────────────────────┐
- │     requests-mock (HttpMocker)         │
- │     intercepts at the Python layer     │
- │     returns hardcoded JSON body        │
- │                                        │
- │     ✗ No OpenAPI schema validation     │
- │     ✗ Static JSON, manual maintenance  │
- │     ✗ Contract drift goes undetected   │
- └───────────────┬────────────────────────┘
-                 │ mocked response
-                 ▼
- ┌────────────────────────────────────────┐
- │     Test Assertions                    │
- │     (record count, state, fields)      │
- └────────────────────────────────────────┘
-```
+This approach introduced several limitations:
 
-**Characteristics:**
-- Static JSON templates per endpoint
-- No OpenAPI schema validation
-- Manual maintenance as API evolves
-- Contract drift goes undetected until production
+- Static mock responses become outdated as the Stripe API evolves.
+- Contract drift between the connector and Stripe's API is difficult to detect.
+- Mock responses require continuous manual maintenance.
+- HTTP requests are not validated against the official OpenAPI contract.
+
+This project introduces **Specmatic** to enable **contract-driven integration testing**, ensuring that both requests and responses conform to the Stripe OpenAPI specification.
 
 ---
 
-### ✅ After — New Workflow (Specmatic Contract Mock)
+# What Was Implemented?
 
-```
- ┌──────────────────────────────────────────────────────────┐
- │   Stripe OpenAPI Specification (stripe-official.json)    │
- └───────────────────────────┬──────────────────────────────┘
-                             │
-                             ▼
- ┌──────────────────────────────────────────────────────────┐
- │   fix_spec.py  (runs automatically in setUpClass)        │
- │                                                          │
- │   • Injects missing endpoint paths                       │
- │   • Flattens deepObject params (created → created[gte])  │
- │   • Duplicates type → type[] and types[] for events      │
- │   • Adds payout / setup_intent query params              │
- │   • Prunes overly strict required[] constraints          │
- └───────────────────────────┬──────────────────────────────┘
-                             │ Modified spec
-                             ▼
- ┌──────────────────────────────────────────────────────────┐
- │   Specmatic Mock Server  (127.0.0.1:9000)                │
- │   • Started automatically in setUpClass                  │
- │   • Validates all requests against the OpenAPI spec      │
- │   • Returns contract-compliant mock responses            │
- │   • Terminated automatically in tearDownClass            │
- └────────────────┬───────────────────────────┬─────────────┘
-                  │                           │
-    POST /_specmatic/expectations       HTTP GET /v1/...
-    (register dynamic stubs)           (real connector request)
-                  │                           │
- ┌────────────────┴───────────────────────────┴─────────────┐
- │   SpecmaticIntegrationTestCase                           │
- │   (base class for all migrated tests)                    │
- │                                                          │
- │   1. set_specmatic_expectation(path, query, body)        │
- │   2. calls read() → connector runs                       │
- │   3. connector hits Specmatic → validated & stubbed      │
- │   4. assert output.records, state, fields                │
- └──────────────────────────────────────────────────────────┘
-                             │
-                             ▼
- ┌──────────────────────────────────────────────────────────┐
- │   Test Assertions                                        │
- │   (record count, pagination, stream state, field values) │
- │                                                          │
- │   ✓ OpenAPI contract validated on every request          │
- │   ✓ Dynamic stubs — no static JSON files                 │
- │   ✓ Schema changes automatically caught                  │
- │   ✓ Prevents contract drift                              │
- └──────────────────────────────────────────────────────────┘
+## 1. OpenAPI Contract Validation
+
+A dedicated validation runner executes the Stripe connector against a **Specmatic Mock Server**.
+
+During execution, Specmatic validates:
+
+- Outgoing connector requests
+- Query parameters
+- Response schemas
+- Overall API contract compliance
+
+```text
+  Airbyte Connector
+        │
+        ▼
+Specmatic Mock Server
+        │
+        ▼
+Stripe OpenAPI Specification
+        │
+        ▼
+Validation Report
 ```
 
-**Characteristics:**
-- Live OpenAPI contract validation on every request
-- Dynamic stubs registered per-test — no static JSON templates
-- Low maintenance: spec drives correctness, not hardcoded bodies
-- Detects and prevents contract drift automatically
+After validation, the runner generates a **Contract Drift Report**, highlighting any deviations from the official Stripe OpenAPI specification.
 
 ---
+
+## 2. Specmatic-backed Integration Tests
+
+Integration tests have been migrated from static **HttpMocker**-based mocks to **Specmatic**.
+
+### Before
+
+Instead of relying on hardcoded JSON files:
+
+```text
+HttpMocker
+      │
+      ▼
+accounts.json
+```
+
+### After
+
+Tests now communicate with a live **Specmatic Mock Server** generated from the Stripe OpenAPI specification.
+
+```text
+Stripe OpenAPI Specification
+          │
+          ▼
+     fix_spec.py
+          │
+          ▼
+ Modified OpenAPI Specification
+          │
+          ▼
+ Specmatic Mock Server
+          │
+          ▼
+ Airbyte Stripe Connector
+          │
+          ▼
+ Test Assertions
+```
+
+Every HTTP request sent by the connector is validated against the OpenAPI specification before Specmatic returns a contract-compliant response.
+
+This significantly reduces mock maintenance while automatically detecting contract drift during integration testing.
 
 ## Migration Status
 
