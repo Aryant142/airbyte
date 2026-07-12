@@ -47,6 +47,19 @@ class SpecmaticIntegrationTestCase(unittest.TestCase):
         if cls._server:
             cls._server.stop()
 
+    def setUp(self) -> None:
+        super().setUp()
+        # Force garbage collection to release any dangling SQLite file handles
+        gc.collect()
+        # Explicitly delete the SQLite cache file to prevent cache leakage between tests
+        cache_file = Path(__file__).resolve().parent.parent / "test_cache.sqlite"
+        if cache_file.exists():
+            try:
+                os.remove(cache_file)
+                print(f"Successfully deleted cache file {cache_file} in setUp.")
+            except Exception as e:
+                print(f"Could not remove SQLite cache file in setUp: {e}")
+
     def tearDown(self) -> None:
         # Uninstall and clear requests_cache to release SQLite file handles on Windows
         import requests_cache
@@ -61,11 +74,21 @@ class SpecmaticIntegrationTestCase(unittest.TestCase):
             print(f"Error closing stream session in Specmatic tearDown: {e}")
             
         try:
-            requests_cache.uninstall_cache()
             requests_cache.clear()
+            requests_cache.uninstall_cache()
         except Exception:
             pass
+            
+        # Force garbage collection to release all database connection file handles
         gc.collect()
+        
+        cache_file = Path(__file__).resolve().parent.parent / "test_cache.sqlite"
+        if cache_file.exists():
+            try:
+                os.remove(cache_file)
+                print(f"Successfully deleted cache file {cache_file} in tearDown.")
+            except Exception as e:
+                print(f"Could not remove SQLite cache file in tearDown: {e}")
 
     def set_specmatic_expectation(
         self,

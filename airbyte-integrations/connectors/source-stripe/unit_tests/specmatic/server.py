@@ -51,7 +51,7 @@ class SpecmaticServer:
 
             # If we timeout
             if self.process:
-                self.process.terminate()
+                self.stop()
             raise RuntimeError(f"Specmatic mock server failed to start on port {self.port}")
         else:
             print("Specmatic executable not found. Assuming Specmatic server is running externally.")
@@ -59,6 +59,15 @@ class SpecmaticServer:
     def stop(self) -> None:
         if self.process:
             print("Terminating Specmatic mock server...")
-            self.process.terminate()
-            self.process.wait()
+            try:
+                # On Windows, kill the process tree to terminate the Java child process too
+                subprocess.run(["taskkill", "/F", "/T", "/PID", str(self.process.pid)], capture_output=True)
+            except Exception:
+                # Fallback to standard terminate if taskkill is not available or fails
+                try:
+                    self.process.terminate()
+                    self.process.wait()
+                except Exception:
+                    pass
+            self.process = None
             print("Specmatic mock server terminated.")
