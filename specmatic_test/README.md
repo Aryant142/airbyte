@@ -22,7 +22,7 @@ This approach introduced several limitations:
 - Mock responses require continuous manual maintenance.
 - HTTP requests are not validated against the official OpenAPI contract.
 
-This project introduces **Specmatic** to enable **contract-driven integration testing**, ensuring that both requests and responses conform to the Stripe OpenAPI specification.
+This project introduces **[Specmatic](https://specmatic.io/)** to enable **contract-driven integration testing**, ensuring that both requests and responses conform to the Stripe OpenAPI specification.
 
 ---
 
