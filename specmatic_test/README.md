@@ -139,11 +139,6 @@ Specmatic is used in this repository for two primary testing workflows:
 | | `test_reviews.py` | ✅ Migrated |
 | | `test_setup_attempts.py` | ✅ Migrated |
 | | `test_transactions.py` | ✅ Migrated |
-| **Batch 3** — Nested sub-resources (path params) | `test_application_fees_refunds.py` | ⏸ Pending |
-| | `test_bank_accounts.py` | ⏸ Pending |
-| | `test_external_account_bank_accounts.py` | ⏸ Pending |
-| | `test_external_account_cards.py` | ⏸ Pending |
-| | `test_persons.py` | ⏸ Pending |
 | **POC** | `test_accounts.py` | ✅ Migrated (original POC) |
 
 **10 of 16 integration test files migrated. All migrated tests pass.**
