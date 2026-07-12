@@ -81,6 +81,26 @@ def inject_list_endpoint(spec, path: str, schema_name: str, path_params: list = 
                     "type": "string"
                 }
             })
+        if "payout" in query_params:
+            parameters.append({
+                "description": "Only return balance transactions that were created for the given payout.",
+                "in": "query",
+                "name": "payout",
+                "required": False,
+                "schema": {
+                    "type": "string"
+                }
+            })
+        if "setup_intent" in query_params:
+            parameters.append({
+                "description": "Only return setup attempts created by the SetupIntent specified by this ID.",
+                "in": "query",
+                "name": "setup_intent",
+                "required": False,
+                "schema": {
+                    "type": "string"
+                }
+            })
 
         # Sanitize operationId by removing dots and slashes
         op_id_base = schema_name.replace(".", "").replace("/", "").capitalize()
@@ -136,7 +156,38 @@ def inject_list_endpoint(spec, path: str, schema_name: str, path_params: list = 
     return False
 
 
-# Declarative configuration list of Stripe endpoints to inject for contract mock validation
+def patch_existing_endpoint_params(spec, path: str, query_params: list) -> bool:
+    """Add any missing query parameters to an already-existing path in the spec."""
+    if path not in spec.get("paths", {}):
+        return False
+    op = spec["paths"][path].get("get", {})
+    existing_param_names = {p.get("name") for p in op.get("parameters", [])}
+    added = False
+    new_params = []
+    if "payout" in query_params and "payout" not in existing_param_names:
+        new_params.append({
+            "description": "Only return balance transactions that were created for the given payout.",
+            "in": "query",
+            "name": "payout",
+            "required": False,
+            "schema": {"type": "string"}
+        })
+        added = True
+    if "setup_intent" in query_params and "setup_intent" not in existing_param_names:
+        new_params.append({
+            "description": "Only return setup attempts created by the SetupIntent specified by this ID.",
+            "in": "query",
+            "name": "setup_intent",
+            "required": False,
+            "schema": {"type": "string"}
+        })
+        added = True
+    if new_params:
+        op.setdefault("parameters", []).extend(new_params)
+        print(f"Patched existing path {path} with missing params: {[p['name'] for p in new_params]}")
+    return added
+
+
 INJECTED_ENDPOINTS = [
     {"path": "/v1/accounts", "schema_name": "account", "query_params": ["limit", "starting_after"]},
     {"path": "/v1/application_fees", "schema_name": "application_fee", "query_params": ["limit", "starting_after", "created"]},
@@ -144,9 +195,9 @@ INJECTED_ENDPOINTS = [
     {"path": "/v1/issuing/cards", "schema_name": "issuing.card", "query_params": ["limit", "starting_after", "created"]},
     {"path": "/v1/radar/early_fraud_warnings", "schema_name": "radar.early_fraud_warning", "query_params": ["limit", "starting_after", "created"]},
     {"path": "/v1/events", "schema_name": "event", "query_params": ["limit", "starting_after", "created", "type"]},
-    {"path": "/v1/balance_transactions", "schema_name": "balance_transaction", "query_params": ["limit", "starting_after", "created"]},
+    {"path": "/v1/balance_transactions", "schema_name": "balance_transaction", "query_params": ["limit", "starting_after", "created", "payout"]},
     {"path": "/v1/reviews", "schema_name": "review", "query_params": ["limit", "starting_after", "created"]},
-    {"path": "/v1/setup_attempts", "schema_name": "setup_attempt", "query_params": ["limit", "starting_after", "created"]},
+    {"path": "/v1/setup_attempts", "schema_name": "setup_attempt", "query_params": ["limit", "starting_after", "created", "setup_intent"]},
     {"path": "/v1/setup_intents", "schema_name": "setup_intent", "query_params": ["limit", "starting_after", "created"]},
     {"path": "/v1/payouts", "schema_name": "payout", "query_params": ["limit", "starting_after", "created"]},
     {"path": "/v1/issuing/transactions", "schema_name": "issuing.transaction", "query_params": ["limit", "starting_after", "created"]},
@@ -213,13 +264,17 @@ def flatten_deep_objects(spec_path):
     spec_modified = False
     for endpoint in INJECTED_ENDPOINTS:
         if inject_list_endpoint(
-            spec, 
-            endpoint["path"], 
-            endpoint["schema_name"], 
-            endpoint.get("path_params"), 
+            spec,
+            endpoint["path"],
+            endpoint["schema_name"],
+            endpoint.get("path_params"),
             endpoint.get("query_params")
         ):
             spec_modified = True
+        else:
+            # Path already exists — patch any missing query params
+            if patch_existing_endpoint_params(spec, endpoint["path"], endpoint.get("query_params", [])):
+                spec_modified = True
 
     modified_count = 0
     for path, path_item in spec.get("paths", {}).items():

@@ -19,12 +19,14 @@ class SpecmaticServer:
             print("Running fix_spec.py to modify specification...")
             subprocess.run([sys.executable, str(fix_spec_script)], check=True, cwd=str(repo_root))
 
-            print(f"Starting Specmatic mock server on {self.host}:{self.port}...")
+            log_file = repo_root / "specmatic_server.log"
+            self.log_file_handle = open(log_file, "w", encoding="utf-8")
+            print(f"Starting Specmatic mock server on {self.host}:{self.port} (logging to {log_file})...")
             self.process = subprocess.Popen(
                 ["specmatic", "mock", f"--port={self.port}", f"--host={self.host}"],
                 cwd=str(repo_root),
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
+                stdout=self.log_file_handle,
+                stderr=self.log_file_handle,
                 text=True,
                 shell=True
             )
@@ -34,8 +36,7 @@ class SpecmaticServer:
             retries = 30
             for i in range(retries):
                 if self.process.poll() is not None:
-                    stdout, stderr = self.process.communicate()
-                    raise RuntimeError(f"Specmatic mock server failed to start: {stderr}\n{stdout}")
+                    raise RuntimeError(f"Specmatic mock server failed to start. Check {log_file} for details.")
                 try:
                     # Connection check (non-blocking if server is up, regardless of status code)
                     requests.get(ready_url, timeout=1)
@@ -70,4 +71,9 @@ class SpecmaticServer:
                 except Exception:
                     pass
             self.process = None
+            if hasattr(self, "log_file_handle") and self.log_file_handle:
+                try:
+                    self.log_file_handle.close()
+                except Exception:
+                    pass
             print("Specmatic mock server terminated.")
