@@ -309,3 +309,14 @@ To test drift detection, update `specmatic.yaml` to reference `stripe-drifted.js
      ```
 3. Inspect the drift report at `specmatic_test/drift_report.md`.
 4. Revert `specmatic.yaml` back to `stripe-official.json` when done.
+
+### 4. Validate Specification and Examples Locally
+
+To validate that inline or external examples and the API specification conform to OpenAPI schemas, run Specmatic's built-in validation command:
+
+```bash
+specmatic examples validate --lenient --spec-file specmatic_test/specs/stripe-official.json
+```
+
+> [!NOTE]
+> The `--lenient` flag is required because the official Stripe specification contains duplicate query parameter entries which otherwise cause strict parser validation to fail.
