@@ -1,25 +1,29 @@
 # Copyright (c) 2026 Airbyte, Inc., all rights reserved.
 
-import unittest
-import os
 import gc
+import os
+import unittest
 from pathlib import Path
-from typing import Optional, Union, Dict, Any
+from typing import Any, Dict, Optional, Union
+
 import requests
+
 from airbyte_cdk.sources.declarative.yaml_declarative_source import YamlDeclarativeSource
+
 from .server import SpecmaticServer
+
 
 class SpecmaticIntegrationTestCase(unittest.TestCase):
     # Port to run Specmatic on
     specmatic_port: int = 9000
     specmatic_host: str = "127.0.0.1"
-    
+
     # Class-level server instance
     _server: Optional[SpecmaticServer] = None
-    
+
     # Config to override url_base
     config: Dict[str, Any] = {}
-    
+
     # Source instance created during test
     source: Optional[YamlDeclarativeSource] = None
 
@@ -28,16 +32,16 @@ class SpecmaticIntegrationTestCase(unittest.TestCase):
         # Resolve repository paths relative to this file
         current_file = Path(__file__).resolve()
         # Find repo root (airbyte-master)
-        repo_root = current_file.parents[5] # airbyte-master
+        repo_root = current_file.parents[5]  # airbyte-master
         fix_spec_script = repo_root / "specmatic_test" / "fix_spec.py"
-        
+
         # Determine if we are running inside Docker
         is_docker = os.path.exists("/.dockerenv")
         cls.specmatic_host = "host.docker.internal" if is_docker else "127.0.0.1"
 
         # Configure url_base for the connector config
         cls.config = {"url_base": f"http://{cls.specmatic_host}:{cls.specmatic_port}/v1/"}
-        
+
         # Start server
         cls._server = SpecmaticServer(port=cls.specmatic_port, host=cls.specmatic_host)
         cls._server.start(repo_root=repo_root, fix_spec_script=fix_spec_script)
@@ -63,6 +67,7 @@ class SpecmaticIntegrationTestCase(unittest.TestCase):
     def tearDown(self) -> None:
         # Uninstall and clear requests_cache to release SQLite file handles on Windows
         import requests_cache
+
         try:
             if self.source:
                 for stream in self.source.streams(config=self.config):
@@ -72,16 +77,16 @@ class SpecmaticIntegrationTestCase(unittest.TestCase):
                             session.close()
         except Exception as e:
             print(f"Error closing stream session in Specmatic tearDown: {e}")
-            
+
         try:
             requests_cache.clear()
             requests_cache.uninstall_cache()
         except Exception:
             pass
-            
+
         # Force garbage collection to release all database connection file handles
         gc.collect()
-        
+
         cache_file = Path(__file__).resolve().parent.parent / "test_cache.sqlite"
         if cache_file.exists():
             try:
@@ -91,25 +96,13 @@ class SpecmaticIntegrationTestCase(unittest.TestCase):
                 print(f"Could not remove SQLite cache file in tearDown: {e}")
 
     def set_specmatic_expectation(
-        self,
-        path: str,
-        query: Dict[str, str],
-        response_body: Union[Dict[str, Any], list],
-        method: str = "GET",
-        status_code: int = 200
+        self, path: str, query: Dict[str, str], response_body: Union[Dict[str, Any], list], method: str = "GET", status_code: int = 200
     ) -> None:
         """Register dynamic contract-validated expectations with the Specmatic mock server"""
         url = f"http://{self.specmatic_host}:{self.specmatic_port}/_specmatic/expectations"
         payload = {
-            "http-request": {
-                "method": method,
-                "path": path,
-                "query": query
-            },
-            "http-response": {
-                "status": status_code,
-                "body": response_body
-            }
+            "http-request": {"method": method, "path": path, "query": query},
+            "http-response": {"status": status_code, "body": response_body},
         }
         resp = requests.post(url, json=payload)
         if resp.status_code != 200:

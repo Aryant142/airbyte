@@ -1,11 +1,13 @@
 # Copyright (c) 2026 Airbyte, Inc., all rights reserved.
 
-import subprocess
 import shutil
+import subprocess
 import sys
-from pathlib import Path
 import time
+from pathlib import Path
+
 import requests
+
 
 class SpecmaticServer:
     def __init__(self, port: int = 9000, host: str = "127.0.0.1"):
@@ -28,7 +30,7 @@ class SpecmaticServer:
                 stdout=self.log_file_handle,
                 stderr=self.log_file_handle,
                 text=True,
-                shell=True
+                shell=True,
             )
 
             # Wait for mock server to be ready

@@ -3,17 +3,18 @@
 #
 
 from datetime import datetime, timedelta, timezone
-from typing import Optional, List
+from typing import List, Optional
+
 import freezegun
 from unit_tests.conftest import get_source
 from unit_tests.specmatic import SpecmaticIntegrationTestCase
 
 from airbyte_cdk.models import AirbyteStateMessage, ConfiguredAirbyteCatalog, StreamDescriptor, SyncMode
 from airbyte_cdk.test.catalog_builder import CatalogBuilder
-from airbyte_cdk.test.state_builder import StateBuilder
 from airbyte_cdk.test.entrypoint_wrapper import EntrypointOutput, read
-
+from airbyte_cdk.test.state_builder import StateBuilder
 from integration.config import ConfigBuilder
+
 
 _EVENT_TYPES = [
     "setup_intent.canceled",
@@ -32,11 +33,7 @@ _SETUP_INTENT_ID_2 = "setup_intent_id_2"
 _NO_STATE = {}
 _AVOIDING_INCLUSIVE_BOUNDARIES = timedelta(seconds=1)
 
-_CONFIG = {
-    "client_secret": _CLIENT_SECRET,
-    "account_id": _ACCOUNT_ID,
-    "url_base": "http://127.0.0.1:9000/v1/"
-}
+_CONFIG = {"client_secret": _CLIENT_SECRET, "account_id": _ACCOUNT_ID, "url_base": "http://127.0.0.1:9000/v1/"}
 
 
 def get_dates():
@@ -70,7 +67,6 @@ def _read(
 
 @freezegun.freeze_time(_NOW_IMPORT.isoformat())
 class FullRefreshTest(SpecmaticIntegrationTestCase):
-
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -84,20 +80,16 @@ class FullRefreshTest(SpecmaticIntegrationTestCase):
 
         self.set_specmatic_expectation(
             path="/v1/setup_intents",
-            query={
-                "created[gte]": str(int(start_date.timestamp())),
-                "created[lte]": str(int(now.timestamp())),
-                "limit": "100"
-            },
+            query={"created[gte]": str(int(start_date.timestamp())), "created[lte]": str(int(now.timestamp())), "limit": "100"},
             response_body={
                 "object": "list",
                 "url": "/v1/setup_intents",
                 "has_more": False,
                 "data": [
                     {"id": _SETUP_INTENT_ID_1, "object": "setup_intent", "created": int(start_date.timestamp())},
-                    {"id": _SETUP_INTENT_ID_2, "object": "setup_intent", "created": int(start_date.timestamp())}
-                ]
-            }
+                    {"id": _SETUP_INTENT_ID_2, "object": "setup_intent", "created": int(start_date.timestamp())},
+                ],
+            },
         )
 
         self.set_specmatic_expectation(
@@ -106,7 +98,7 @@ class FullRefreshTest(SpecmaticIntegrationTestCase):
                 "setup_intent": _SETUP_INTENT_ID_1,
                 "created[gte]": str(int(start_date.timestamp())),
                 "created[lte]": str(int(now.timestamp())),
-                "limit": "100"
+                "limit": "100",
             },
             response_body={
                 "object": "list",
@@ -114,8 +106,8 @@ class FullRefreshTest(SpecmaticIntegrationTestCase):
                 "has_more": False,
                 "data": [
                     {"id": "sa_1", "object": "setup_attempt", "created": int(start_date.timestamp()), "setup_intent": _SETUP_INTENT_ID_1}
-                ]
-            }
+                ],
+            },
         )
 
         self.set_specmatic_expectation(
@@ -124,7 +116,7 @@ class FullRefreshTest(SpecmaticIntegrationTestCase):
                 "setup_intent": _SETUP_INTENT_ID_2,
                 "created[gte]": str(int(start_date.timestamp())),
                 "created[lte]": str(int(now.timestamp())),
-                "limit": "100"
+                "limit": "100",
             },
             response_body={
                 "object": "list",
@@ -132,9 +124,9 @@ class FullRefreshTest(SpecmaticIntegrationTestCase):
                 "has_more": False,
                 "data": [
                     {"id": "sa_2", "object": "setup_attempt", "created": int(start_date.timestamp()), "setup_intent": _SETUP_INTENT_ID_2},
-                    {"id": "sa_3", "object": "setup_attempt", "created": int(start_date.timestamp()), "setup_intent": _SETUP_INTENT_ID_2}
-                ]
-            }
+                    {"id": "sa_3", "object": "setup_attempt", "created": int(start_date.timestamp()), "setup_intent": _SETUP_INTENT_ID_2},
+                ],
+            },
         )
 
         self.source = get_source(_CONFIG, _NO_STATE)
@@ -144,7 +136,6 @@ class FullRefreshTest(SpecmaticIntegrationTestCase):
 
 @freezegun.freeze_time(_NOW_IMPORT.isoformat())
 class IncrementalTest(SpecmaticIntegrationTestCase):
-
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -160,20 +151,16 @@ class IncrementalTest(SpecmaticIntegrationTestCase):
 
         self.set_specmatic_expectation(
             path="/v1/setup_intents",
-            query={
-                "created[gte]": str(int(start_date.timestamp())),
-                "created[lte]": str(int(now.timestamp())),
-                "limit": "100"
-            },
+            query={"created[gte]": str(int(start_date.timestamp())), "created[lte]": str(int(now.timestamp())), "limit": "100"},
             response_body={
                 "object": "list",
                 "url": "/v1/setup_intents",
                 "has_more": False,
                 "data": [
                     {"id": _SETUP_INTENT_ID_1, "object": "setup_intent", "created": int(start_date.timestamp())},
-                    {"id": _SETUP_INTENT_ID_2, "object": "setup_intent", "created": int(start_date.timestamp())}
-                ]
-            }
+                    {"id": _SETUP_INTENT_ID_2, "object": "setup_intent", "created": int(start_date.timestamp())},
+                ],
+            },
         )
 
         self.set_specmatic_expectation(
@@ -182,7 +169,7 @@ class IncrementalTest(SpecmaticIntegrationTestCase):
                 "setup_intent": _SETUP_INTENT_ID_1,
                 "created[gte]": str(int(start_date.timestamp())),
                 "created[lte]": str(int(now.timestamp())),
-                "limit": "100"
+                "limit": "100",
             },
             response_body={
                 "object": "list",
@@ -190,8 +177,8 @@ class IncrementalTest(SpecmaticIntegrationTestCase):
                 "has_more": False,
                 "data": [
                     {"id": "sa_1", "object": "setup_attempt", "created": int(start_date.timestamp()), "setup_intent": _SETUP_INTENT_ID_1}
-                ]
-            }
+                ],
+            },
         )
 
         self.set_specmatic_expectation(
@@ -200,7 +187,7 @@ class IncrementalTest(SpecmaticIntegrationTestCase):
                 "setup_intent": _SETUP_INTENT_ID_2,
                 "created[gte]": str(int(start_date.timestamp())),
                 "created[lte]": str(int(now.timestamp())),
-                "limit": "100"
+                "limit": "100",
             },
             response_body={
                 "object": "list",
@@ -208,9 +195,9 @@ class IncrementalTest(SpecmaticIntegrationTestCase):
                 "has_more": False,
                 "data": [
                     {"id": "sa_2", "object": "setup_attempt", "created": int(start_date.timestamp()), "setup_intent": _SETUP_INTENT_ID_2},
-                    {"id": "sa_3", "object": "setup_attempt", "created": int(start_date.timestamp()), "setup_intent": _SETUP_INTENT_ID_2}
-                ]
-            }
+                    {"id": "sa_3", "object": "setup_attempt", "created": int(start_date.timestamp()), "setup_intent": _SETUP_INTENT_ID_2},
+                ],
+            },
         )
 
         self.source = get_source(_CONFIG, _NO_STATE)
@@ -230,7 +217,7 @@ class IncrementalTest(SpecmaticIntegrationTestCase):
                 "created[gte]": str(int(state_datetime.timestamp())),
                 "created[lte]": str(int(now.timestamp())),
                 "limit": "100",
-                "types[]": _EVENT_TYPES
+                "types[]": _EVENT_TYPES,
             },
             response_body={
                 "object": "list",
@@ -241,12 +228,10 @@ class IncrementalTest(SpecmaticIntegrationTestCase):
                         "id": "evt_1",
                         "object": "event",
                         "created": cursor_value,
-                        "data": {
-                            "object": {"id": _SETUP_INTENT_ID_1, "object": "setup_intent", "created": cursor_value}
-                        }
+                        "data": {"object": {"id": _SETUP_INTENT_ID_1, "object": "setup_intent", "created": cursor_value}},
                     }
-                ]
-            }
+                ],
+            },
         )
 
         self.set_specmatic_expectation(
@@ -255,7 +240,7 @@ class IncrementalTest(SpecmaticIntegrationTestCase):
                 "setup_intent": _SETUP_INTENT_ID_1,
                 "created[gte]": str(int(state_datetime.timestamp())),
                 "created[lte]": str(int(now.timestamp())),
-                "limit": "100"
+                "limit": "100",
             },
             response_body={
                 "object": "list",
@@ -266,10 +251,10 @@ class IncrementalTest(SpecmaticIntegrationTestCase):
                         "id": "sa_1",
                         "object": "setup_attempt",
                         "created": creation_datetime_of_setup_attempt,
-                        "setup_intent": _SETUP_INTENT_ID_1
+                        "setup_intent": _SETUP_INTENT_ID_1,
                     }
-                ]
-            }
+                ],
+            },
         )
 
         state = StateBuilder().with_stream_state(_STREAM_NAME, {"created": int(state_datetime.timestamp())}).build()

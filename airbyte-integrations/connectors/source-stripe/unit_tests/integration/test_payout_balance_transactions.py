@@ -3,17 +3,18 @@
 #
 
 from datetime import datetime, timedelta, timezone
-from typing import Optional, List
+from typing import List, Optional
+
 import freezegun
 from unit_tests.conftest import get_source
 from unit_tests.specmatic import SpecmaticIntegrationTestCase
 
 from airbyte_cdk.models import AirbyteStateMessage, ConfiguredAirbyteCatalog, SyncMode
 from airbyte_cdk.test.catalog_builder import CatalogBuilder
-from airbyte_cdk.test.state_builder import StateBuilder
 from airbyte_cdk.test.entrypoint_wrapper import EntrypointOutput, read
-
+from airbyte_cdk.test.state_builder import StateBuilder
 from integration.config import ConfigBuilder
+
 
 _STREAM_NAME = "payout_balance_transactions"
 _A_PAYOUT_ID = "a_payout_id"
@@ -33,11 +34,7 @@ _EVENT_TYPES = [
     "payout.updated",
 ]
 
-_CONFIG = {
-    "client_secret": _CLIENT_SECRET,
-    "account_id": _ACCOUNT_ID,
-    "url_base": "http://127.0.0.1:9000/v1/"
-}
+_CONFIG = {"client_secret": _CLIENT_SECRET, "account_id": _ACCOUNT_ID, "url_base": "http://127.0.0.1:9000/v1/"}
 
 
 def get_dates():
@@ -71,7 +68,6 @@ def _read(
 
 @freezegun.freeze_time(_NOW_IMPORT.isoformat())
 class PayoutBalanceTransactionsFullRefreshTest(SpecmaticIntegrationTestCase):
-
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -85,53 +81,41 @@ class PayoutBalanceTransactionsFullRefreshTest(SpecmaticIntegrationTestCase):
 
         self.set_specmatic_expectation(
             path="/v1/payouts",
-            query={
-                "created[gte]": str(int(start_date.timestamp())),
-                "created[lte]": str(int(now.timestamp())),
-                "limit": "100"
-            },
+            query={"created[gte]": str(int(start_date.timestamp())), "created[lte]": str(int(now.timestamp())), "limit": "100"},
             response_body={
                 "object": "list",
                 "url": "/v1/payouts",
                 "has_more": False,
                 "data": [
                     {"id": _A_PAYOUT_ID, "object": "payout", "created": int(start_date.timestamp())},
-                    {"id": _ANOTHER_PAYOUT_ID, "object": "payout", "created": int(start_date.timestamp())}
-                ]
-            }
+                    {"id": _ANOTHER_PAYOUT_ID, "object": "payout", "created": int(start_date.timestamp())},
+                ],
+            },
         )
 
         self.set_specmatic_expectation(
             path="/v1/balance_transactions",
-            query={
-                "payout": _A_PAYOUT_ID,
-                "limit": "100"
-            },
+            query={"payout": _A_PAYOUT_ID, "limit": "100"},
             response_body={
                 "object": "list",
                 "url": "/v1/balance_transactions",
                 "has_more": False,
-                "data": [
-                    {"id": "txn_1", "object": "balance_transaction", "created": int(start_date.timestamp())}
-                ]
-            }
+                "data": [{"id": "txn_1", "object": "balance_transaction", "created": int(start_date.timestamp())}],
+            },
         )
 
         self.set_specmatic_expectation(
             path="/v1/balance_transactions",
-            query={
-                "payout": _ANOTHER_PAYOUT_ID,
-                "limit": "100"
-            },
+            query={"payout": _ANOTHER_PAYOUT_ID, "limit": "100"},
             response_body={
                 "object": "list",
                 "url": "/v1/balance_transactions",
                 "has_more": False,
                 "data": [
                     {"id": "txn_2", "object": "balance_transaction", "created": int(start_date.timestamp())},
-                    {"id": "txn_3", "object": "balance_transaction", "created": int(start_date.timestamp())}
-                ]
-            }
+                    {"id": "txn_3", "object": "balance_transaction", "created": int(start_date.timestamp())},
+                ],
+            },
         )
 
         self.source = get_source(_CONFIG, _NO_STATE)
@@ -143,35 +127,24 @@ class PayoutBalanceTransactionsFullRefreshTest(SpecmaticIntegrationTestCase):
 
         self.set_specmatic_expectation(
             path="/v1/payouts",
-            query={
-                "created[gte]": str(int(start_date.timestamp())),
-                "created[lte]": str(int(now.timestamp())),
-                "limit": "100"
-            },
+            query={"created[gte]": str(int(start_date.timestamp())), "created[lte]": str(int(now.timestamp())), "limit": "100"},
             response_body={
                 "object": "list",
                 "url": "/v1/payouts",
                 "has_more": False,
-                "data": [
-                    {"id": _A_PAYOUT_ID, "object": "payout", "created": int(start_date.timestamp())}
-                ]
-            }
+                "data": [{"id": _A_PAYOUT_ID, "object": "payout", "created": int(start_date.timestamp())}],
+            },
         )
 
         self.set_specmatic_expectation(
             path="/v1/balance_transactions",
-            query={
-                "payout": _A_PAYOUT_ID,
-                "limit": "100"
-            },
+            query={"payout": _A_PAYOUT_ID, "limit": "100"},
             response_body={
                 "object": "list",
                 "url": "/v1/balance_transactions",
                 "has_more": False,
-                "data": [
-                    {"id": "txn_1", "object": "balance_transaction", "created": int(start_date.timestamp())}
-                ]
-            }
+                "data": [{"id": "txn_1", "object": "balance_transaction", "created": int(start_date.timestamp())}],
+            },
         )
 
         self.source = get_source(_CONFIG, _NO_STATE)
@@ -181,7 +154,6 @@ class PayoutBalanceTransactionsFullRefreshTest(SpecmaticIntegrationTestCase):
 
 @freezegun.freeze_time(_NOW_IMPORT.isoformat())
 class PayoutBalanceTransactionsIncrementalTest(SpecmaticIntegrationTestCase):
-
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -202,7 +174,7 @@ class PayoutBalanceTransactionsIncrementalTest(SpecmaticIntegrationTestCase):
                 "created[gte]": str(int(state_date.timestamp())),
                 "created[lte]": str(int(now.timestamp())),
                 "limit": "100",
-                "types[]": _EVENT_TYPES
+                "types[]": _EVENT_TYPES,
             },
             response_body={
                 "object": "list",
@@ -218,28 +190,23 @@ class PayoutBalanceTransactionsIncrementalTest(SpecmaticIntegrationTestCase):
                                 "id": _A_PAYOUT_ID,
                                 "object": "payout",
                                 "created": int(state_date.timestamp()),
-                                "updated": int(state_date.timestamp())
+                                "updated": int(state_date.timestamp()),
                             }
-                        }
+                        },
                     }
-                ]
-            }
+                ],
+            },
         )
 
         self.set_specmatic_expectation(
             path="/v1/balance_transactions",
-            query={
-                "payout": _A_PAYOUT_ID,
-                "limit": "100"
-            },
+            query={"payout": _A_PAYOUT_ID, "limit": "100"},
             response_body={
                 "object": "list",
                 "url": "/v1/balance_transactions",
                 "has_more": False,
-                "data": [
-                    {"id": "txn_1", "object": "balance_transaction", "created": int(state_date.timestamp())}
-                ]
-            }
+                "data": [{"id": "txn_1", "object": "balance_transaction", "created": int(state_date.timestamp())}],
+            },
         )
 
         state = StateBuilder().with_stream_state(_STREAM_NAME, {"updated": int(state_date.timestamp())}).build()

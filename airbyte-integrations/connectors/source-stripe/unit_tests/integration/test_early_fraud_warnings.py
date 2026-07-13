@@ -3,21 +3,22 @@
 #
 
 from datetime import datetime, timedelta, timezone
-from typing import Optional, List
+from typing import List, Optional
+from unittest.mock import patch
+
 import freezegun
+import requests_mock
 from unit_tests.conftest import get_source
 from unit_tests.specmatic import SpecmaticIntegrationTestCase
 
 from airbyte_cdk.models import AirbyteStateMessage, ConfiguredAirbyteCatalog, FailureType, StreamDescriptor, SyncMode
 from airbyte_cdk.sources.streams.http.error_handlers.http_status_error_handler import HttpStatusErrorHandler
 from airbyte_cdk.test.catalog_builder import CatalogBuilder
-from airbyte_cdk.test.state_builder import StateBuilder
 from airbyte_cdk.test.entrypoint_wrapper import EntrypointOutput, read
-from unittest.mock import patch
-import requests_mock
-
+from airbyte_cdk.test.state_builder import StateBuilder
 from integration.config import ConfigBuilder
 from integration.helpers import assert_stream_did_not_run
+
 
 _EVENT_TYPES = ["radar.early_fraud_warning.created", "radar.early_fraud_warning.updated"]
 _STREAM_NAME = "early_fraud_warnings"
@@ -27,11 +28,7 @@ _CLIENT_SECRET = "client_secret"
 _NO_STATE = {}
 _AVOIDING_INCLUSIVE_BOUNDARIES = timedelta(seconds=1)
 
-_CONFIG = {
-    "client_secret": _CLIENT_SECRET,
-    "account_id": _ACCOUNT_ID,
-    "url_base": "http://127.0.0.1:9000/v1/"
-}
+_CONFIG = {"client_secret": _CLIENT_SECRET, "account_id": _ACCOUNT_ID, "url_base": "http://127.0.0.1:9000/v1/"}
 
 
 def get_dates():
@@ -65,7 +62,6 @@ def _read(
 
 @freezegun.freeze_time(_NOW_IMPORT.isoformat())
 class FullRefreshTest(SpecmaticIntegrationTestCase):
-
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -78,18 +74,16 @@ class FullRefreshTest(SpecmaticIntegrationTestCase):
         now, start_date = get_dates()
         self.set_specmatic_expectation(
             path="/v1/radar/early_fraud_warnings",
-            query={
-                "limit": "100"
-            },
+            query={"limit": "100"},
             response_body={
                 "object": "list",
                 "url": "/v1/radar/early_fraud_warnings",
                 "has_more": False,
                 "data": [
                     {"id": "warning_1", "object": "radar.early_fraud_warning", "created": int(start_date.timestamp())},
-                    {"id": "warning_2", "object": "radar.early_fraud_warning", "created": int(start_date.timestamp())}
-                ]
-            }
+                    {"id": "warning_2", "object": "radar.early_fraud_warning", "created": int(start_date.timestamp())},
+                ],
+            },
         )
 
         self.source = get_source(_CONFIG, _NO_STATE)
@@ -100,34 +94,29 @@ class FullRefreshTest(SpecmaticIntegrationTestCase):
         now, start_date = get_dates()
         self.set_specmatic_expectation(
             path="/v1/radar/early_fraud_warnings",
-            query={
-                "limit": "100"
-            },
+            query={"limit": "100"},
             response_body={
                 "object": "list",
                 "url": "/v1/radar/early_fraud_warnings",
                 "has_more": True,
                 "data": [
                     {"id": "last_record_id_from_first_page", "object": "radar.early_fraud_warning", "created": int(start_date.timestamp())}
-                ]
-            }
+                ],
+            },
         )
 
         self.set_specmatic_expectation(
             path="/v1/radar/early_fraud_warnings",
-            query={
-                "starting_after": "last_record_id_from_first_page",
-                "limit": "100"
-            },
+            query={"starting_after": "last_record_id_from_first_page", "limit": "100"},
             response_body={
                 "object": "list",
                 "url": "/v1/radar/early_fraud_warnings",
                 "has_more": False,
                 "data": [
                     {"id": "warning_1", "object": "radar.early_fraud_warning", "created": int(start_date.timestamp())},
-                    {"id": "warning_2", "object": "radar.early_fraud_warning", "created": int(start_date.timestamp())}
-                ]
-            }
+                    {"id": "warning_2", "object": "radar.early_fraud_warning", "created": int(start_date.timestamp())},
+                ],
+            },
         )
 
         self.source = get_source(_CONFIG, _NO_STATE)
@@ -138,17 +127,13 @@ class FullRefreshTest(SpecmaticIntegrationTestCase):
         now, start_date = get_dates()
         self.set_specmatic_expectation(
             path="/v1/radar/early_fraud_warnings",
-            query={
-                "limit": "100"
-            },
+            query={"limit": "100"},
             response_body={
                 "object": "list",
                 "url": "/v1/radar/early_fraud_warnings",
                 "has_more": False,
-                "data": [
-                    {"id": "warning_1", "object": "radar.early_fraud_warning", "created": int(start_date.timestamp())}
-                ]
-            }
+                "data": [{"id": "warning_1", "object": "radar.early_fraud_warning", "created": int(start_date.timestamp())}],
+            },
         )
 
         self.source = get_source(_CONFIG, _NO_STATE)
@@ -159,12 +144,7 @@ class FullRefreshTest(SpecmaticIntegrationTestCase):
         now, _ = get_dates()
         url = f"{_CONFIG['url_base']}radar/early_fraud_warnings"
         with requests_mock.Mocker(real_http=True) as m:
-            m.register_uri(
-                "GET",
-                url,
-                status_code=400,
-                json={"error": {"message": "Your account is not set up to use Issuing"}}
-            )
+            m.register_uri("GET", url, status_code=400, json={"error": {"message": "Your account is not set up to use Issuing"}})
             self.source = get_source(_CONFIG, _NO_STATE)
             output = self._read(_config(now))
             assert_stream_did_not_run(output, _STREAM_NAME, "Your account is not set up to use Issuing")
@@ -173,12 +153,7 @@ class FullRefreshTest(SpecmaticIntegrationTestCase):
         now, _ = get_dates()
         url = f"{_CONFIG['url_base']}radar/early_fraud_warnings"
         with requests_mock.Mocker(real_http=True) as m:
-            m.register_uri(
-                "GET",
-                url,
-                status_code=401,
-                json={"error": {"message": "Invalid API Key"}}
-            )
+            m.register_uri("GET", url, status_code=401, json={"error": {"message": "Invalid API Key"}})
             self.source = get_source(_CONFIG, _NO_STATE)
             output = self._read(_config(now), expecting_exception=True)
             assert output.errors[-1].trace.error.failure_type == FailureType.config_error
@@ -198,12 +173,10 @@ class FullRefreshTest(SpecmaticIntegrationTestCase):
                             "object": "list",
                             "url": "/v1/radar/early_fraud_warnings",
                             "has_more": False,
-                            "data": [
-                                {"id": "warning_1", "object": "radar.early_fraud_warning", "created": int(start_date.timestamp())}
-                            ]
-                        }
-                    }
-                ]
+                            "data": [{"id": "warning_1", "object": "radar.early_fraud_warning", "created": int(start_date.timestamp())}],
+                        },
+                    },
+                ],
             )
             self.source = get_source(_CONFIG, _NO_STATE)
             output = self._read(_config(_NOW_IMPORT).with_start_date(start_date))
@@ -223,12 +196,10 @@ class FullRefreshTest(SpecmaticIntegrationTestCase):
                             "object": "list",
                             "url": "/v1/radar/early_fraud_warnings",
                             "has_more": False,
-                            "data": [
-                                {"id": "warning_1", "object": "radar.early_fraud_warning", "created": int(_NOW_IMPORT.timestamp())}
-                            ]
-                        }
-                    }
-                ]
+                            "data": [{"id": "warning_1", "object": "radar.early_fraud_warning", "created": int(_NOW_IMPORT.timestamp())}],
+                        },
+                    },
+                ],
             )
             self.source = get_source(_CONFIG, _NO_STATE)
             output = self._read(_config(_NOW_IMPORT))
@@ -246,7 +217,6 @@ class FullRefreshTest(SpecmaticIntegrationTestCase):
 
 @freezegun.freeze_time(_NOW_IMPORT.isoformat())
 class IncrementalTest(SpecmaticIntegrationTestCase):
-
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -262,17 +232,13 @@ class IncrementalTest(SpecmaticIntegrationTestCase):
         cursor_value = int(start_date.timestamp()) + 1
         self.set_specmatic_expectation(
             path="/v1/radar/early_fraud_warnings",
-            query={
-                "limit": "100"
-            },
+            query={"limit": "100"},
             response_body={
                 "object": "list",
                 "url": "/v1/radar/early_fraud_warnings",
                 "has_more": False,
-                "data": [
-                    {"id": "warning_1", "object": "radar.early_fraud_warning", "created": cursor_value}
-                ]
-            }
+                "data": [{"id": "warning_1", "object": "radar.early_fraud_warning", "created": cursor_value}],
+            },
         )
 
         self.source = get_source(_CONFIG, _NO_STATE)
@@ -292,7 +258,7 @@ class IncrementalTest(SpecmaticIntegrationTestCase):
                 "created[gte]": str(int(state_datetime.timestamp())),
                 "created[lte]": str(int(now.timestamp())),
                 "limit": "100",
-                "types[]": _EVENT_TYPES
+                "types[]": _EVENT_TYPES,
             },
             response_body={
                 "object": "list",
@@ -303,12 +269,10 @@ class IncrementalTest(SpecmaticIntegrationTestCase):
                         "id": "evt_1",
                         "object": "event",
                         "created": cursor_value,
-                        "data": {
-                            "object": {"id": "warning_1", "object": "radar.early_fraud_warning", "created": cursor_value}
-                        }
+                        "data": {"object": {"id": "warning_1", "object": "radar.early_fraud_warning", "created": cursor_value}},
                     }
-                ]
-            }
+                ],
+            },
         )
 
         state = StateBuilder().with_stream_state(_STREAM_NAME, {"updated": int(state_datetime.timestamp())}).build()
@@ -330,7 +294,7 @@ class IncrementalTest(SpecmaticIntegrationTestCase):
                 "created[gte]": str(int(state_datetime.timestamp())),
                 "created[lte]": str(int(now.timestamp())),
                 "limit": "100",
-                "types[]": _EVENT_TYPES
+                "types[]": _EVENT_TYPES,
             },
             response_body={
                 "object": "list",
@@ -341,12 +305,10 @@ class IncrementalTest(SpecmaticIntegrationTestCase):
                         "id": "last_record_id_from_first_page",
                         "object": "event",
                         "created": cursor_value,
-                        "data": {
-                            "object": {"id": "warning_1", "object": "radar.early_fraud_warning", "created": cursor_value}
-                        }
+                        "data": {"object": {"id": "warning_1", "object": "radar.early_fraud_warning", "created": cursor_value}},
                     }
-                ]
-            }
+                ],
+            },
         )
 
         self.set_specmatic_expectation(
@@ -356,7 +318,7 @@ class IncrementalTest(SpecmaticIntegrationTestCase):
                 "created[gte]": str(int(state_datetime.timestamp())),
                 "created[lte]": str(int(now.timestamp())),
                 "limit": "100",
-                "types[]": _EVENT_TYPES
+                "types[]": _EVENT_TYPES,
             },
             response_body={
                 "object": "list",
@@ -367,12 +329,10 @@ class IncrementalTest(SpecmaticIntegrationTestCase):
                         "id": "evt_2",
                         "object": "event",
                         "created": cursor_value,
-                        "data": {
-                            "object": {"id": "warning_2", "object": "radar.early_fraud_warning", "created": cursor_value}
-                        }
+                        "data": {"object": {"id": "warning_2", "object": "radar.early_fraud_warning", "created": cursor_value}},
                     }
-                ]
-            }
+                ],
+            },
         )
 
         state = StateBuilder().with_stream_state(_STREAM_NAME, {"updated": int(state_datetime.timestamp())}).build()
@@ -393,7 +353,7 @@ class IncrementalTest(SpecmaticIntegrationTestCase):
                 "created[gte]": str(int(state_datetime.timestamp())),
                 "created[lte]": str(int((slice_datetime - _AVOIDING_INCLUSIVE_BOUNDARIES).timestamp())),
                 "limit": "100",
-                "types[]": _EVENT_TYPES
+                "types[]": _EVENT_TYPES,
             },
             response_body={
                 "object": "list",
@@ -404,12 +364,10 @@ class IncrementalTest(SpecmaticIntegrationTestCase):
                         "id": "evt_1",
                         "object": "event",
                         "created": cursor_value,
-                        "data": {
-                            "object": {"id": "warning_1", "object": "radar.early_fraud_warning", "created": cursor_value}
-                        }
+                        "data": {"object": {"id": "warning_1", "object": "radar.early_fraud_warning", "created": cursor_value}},
                     }
-                ]
-            }
+                ],
+            },
         )
 
         self.set_specmatic_expectation(
@@ -418,7 +376,7 @@ class IncrementalTest(SpecmaticIntegrationTestCase):
                 "created[gte]": str(int(slice_datetime.timestamp())),
                 "created[lte]": str(int(now.timestamp())),
                 "limit": "100",
-                "types[]": _EVENT_TYPES
+                "types[]": _EVENT_TYPES,
             },
             response_body={
                 "object": "list",
@@ -429,26 +387,19 @@ class IncrementalTest(SpecmaticIntegrationTestCase):
                         "id": "evt_2",
                         "object": "event",
                         "created": cursor_value,
-                        "data": {
-                            "object": {"id": "warning_2", "object": "radar.early_fraud_warning", "created": cursor_value}
-                        }
+                        "data": {"object": {"id": "warning_2", "object": "radar.early_fraud_warning", "created": cursor_value}},
                     },
                     {
                         "id": "evt_3",
                         "object": "event",
                         "created": cursor_value,
-                        "data": {
-                            "object": {"id": "warning_3", "object": "radar.early_fraud_warning", "created": cursor_value}
-                        }
-                    }
-                ]
-            }
+                        "data": {"object": {"id": "warning_3", "object": "radar.early_fraud_warning", "created": cursor_value}},
+                    },
+                ],
+            },
         )
 
         state = StateBuilder().with_stream_state(_STREAM_NAME, {"updated": int(state_datetime.timestamp())}).build()
         self.source = get_source(_CONFIG, state)
-        output = self._read(
-            _config(now).with_start_date(now - timedelta(days=30)).with_slice_range_in_days(slice_range.days),
-            state
-        )
+        output = self._read(_config(now).with_start_date(now - timedelta(days=30)).with_slice_range_in_days(slice_range.days), state)
         assert len(output.records) == 3
