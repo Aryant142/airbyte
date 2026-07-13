@@ -4,9 +4,9 @@ import json
 import os
 
 
-def inject_list_endpoint(spec, path: str, schema_name: str, path_params: list = None, query_params: list = None) -> bool:
+def inject_list_endpoint(spec, path: str, schema_name: str, path_params: list = None, query_params: list = None, force: bool = False) -> bool:
     """Injects a list-based GET endpoint into the specification paths if not already present."""
-    if path not in spec.get("paths", {}):
+    if force or path not in spec.get("paths", {}):
         if query_params is None:
             query_params = ["limit", "starting_after"]
 
@@ -102,9 +102,10 @@ def inject_list_endpoint(spec, path: str, schema_name: str, path_params: list = 
                 }
             })
 
-        # Sanitize operationId by removing dots and slashes
-        op_id_base = schema_name.replace(".", "").replace("/", "").capitalize()
-        sanitized_op_id = f"Get{op_id_base}s"
+        # Sanitize operationId using the path to ensure uniqueness
+        path_clean = path.replace("/v1/", "").replace("/", "_").replace("{", "").replace("}", "")
+        op_id_parts = [part.capitalize() for part in path_clean.split("_") if part]
+        sanitized_op_id = "Get" + "".join(op_id_parts)
 
         spec["paths"][path] = {
             "get": {
@@ -268,7 +269,8 @@ def flatten_deep_objects(spec_path):
             endpoint["path"],
             endpoint["schema_name"],
             endpoint.get("path_params"),
-            endpoint.get("query_params")
+            endpoint.get("query_params"),
+            force=True
         ):
             spec_modified = True
         else:

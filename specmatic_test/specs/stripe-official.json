@@ -53045,7 +53045,10 @@
                     }
                   },
                   "required": [
-                    "object"
+                    "data",
+                    "has_more",
+                    "object",
+                    "url"
                   ],
                   "type": "object"
                 }
@@ -53059,7 +53062,7 @@
     "/v1/application_fees": {
       "get": {
         "description": "Returns a list of application_fees",
-        "operationId": "GetApplication_fees",
+        "operationId": "GetApplicationFees",
         "parameters": [
           {
             "description": "A limit on the number of objects to be returned.",
@@ -53174,7 +53177,10 @@
                     }
                   },
                   "required": [
-                    "object"
+                    "data",
+                    "has_more",
+                    "object",
+                    "url"
                   ],
                   "type": "object"
                 }
@@ -53188,7 +53194,7 @@
     "/v1/issuing/authorizations": {
       "get": {
         "description": "Returns a list of issuing.authorizations",
-        "operationId": "GetIssuingauthorizations",
+        "operationId": "GetIssuingAuthorizations",
         "parameters": [
           {
             "description": "A limit on the number of objects to be returned.",
@@ -53303,7 +53309,10 @@
                     }
                   },
                   "required": [
-                    "object"
+                    "data",
+                    "has_more",
+                    "object",
+                    "url"
                   ],
                   "type": "object"
                 }
@@ -53317,7 +53326,7 @@
     "/v1/issuing/cards": {
       "get": {
         "description": "Returns a list of issuing.cards",
-        "operationId": "GetIssuingcards",
+        "operationId": "GetIssuingCards",
         "parameters": [
           {
             "description": "A limit on the number of objects to be returned.",
@@ -53432,7 +53441,10 @@
                     }
                   },
                   "required": [
-                    "object"
+                    "data",
+                    "has_more",
+                    "object",
+                    "url"
                   ],
                   "type": "object"
                 }
@@ -53446,7 +53458,7 @@
     "/v1/radar/early_fraud_warnings": {
       "get": {
         "description": "Returns a list of radar.early_fraud_warnings",
-        "operationId": "GetRadarearly_fraud_warnings",
+        "operationId": "GetRadarEarlyFraudWarnings",
         "parameters": [
           {
             "description": "A limit on the number of objects to be returned.",
@@ -53561,7 +53573,10 @@
                     }
                   },
                   "required": [
-                    "object"
+                    "data",
+                    "has_more",
+                    "object",
+                    "url"
                   ],
                   "type": "object"
                 }
@@ -53723,7 +53738,10 @@
                     }
                   },
                   "required": [
-                    "object"
+                    "data",
+                    "has_more",
+                    "object",
+                    "url"
                   ],
                   "type": "object"
                 }
@@ -53737,7 +53755,7 @@
     "/v1/balance_transactions": {
       "get": {
         "description": "Returns a list of balance_transactions",
-        "operationId": "GetBalance_transactions",
+        "operationId": "GetBalanceTransactions",
         "parameters": [
           {
             "description": "A limit on the number of objects to be returned.",
@@ -53861,7 +53879,10 @@
                     }
                   },
                   "required": [
-                    "object"
+                    "data",
+                    "has_more",
+                    "object",
+                    "url"
                   ],
                   "type": "object"
                 }
@@ -53990,7 +54011,10 @@
                     }
                   },
                   "required": [
-                    "object"
+                    "data",
+                    "has_more",
+                    "object",
+                    "url"
                   ],
                   "type": "object"
                 }
@@ -54004,7 +54028,7 @@
     "/v1/setup_attempts": {
       "get": {
         "description": "Returns a list of setup_attempts",
-        "operationId": "GetSetup_attempts",
+        "operationId": "GetSetupAttempts",
         "parameters": [
           {
             "description": "A limit on the number of objects to be returned.",
@@ -54128,7 +54152,10 @@
                     }
                   },
                   "required": [
-                    "object"
+                    "data",
+                    "has_more",
+                    "object",
+                    "url"
                   ],
                   "type": "object"
                 }
@@ -54142,7 +54169,7 @@
     "/v1/setup_intents": {
       "get": {
         "description": "Returns a list of setup_intents",
-        "operationId": "GetSetup_intents",
+        "operationId": "GetSetupIntents",
         "parameters": [
           {
             "description": "A limit on the number of objects to be returned.",
@@ -54257,7 +54284,10 @@
                     }
                   },
                   "required": [
-                    "object"
+                    "data",
+                    "has_more",
+                    "object",
+                    "url"
                   ],
                   "type": "object"
                 }
@@ -54386,7 +54416,10 @@
                     }
                   },
                   "required": [
-                    "object"
+                    "data",
+                    "has_more",
+                    "object",
+                    "url"
                   ],
                   "type": "object"
                 }
@@ -54400,7 +54433,7 @@
     "/v1/issuing/transactions": {
       "get": {
         "description": "Returns a list of issuing.transactions",
-        "operationId": "GetIssuingtransactions",
+        "operationId": "GetIssuingTransactions",
         "parameters": [
           {
             "description": "A limit on the number of objects to be returned.",
@@ -54515,7 +54548,10 @@
                     }
                   },
                   "required": [
-                    "object"
+                    "data",
+                    "has_more",
+                    "object",
+                    "url"
                   ],
                   "type": "object"
                 }
@@ -54529,7 +54565,7 @@
     "/v1/application_fees/{id}/refunds": {
       "get": {
         "description": "Returns a list of fee_refunds",
-        "operationId": "GetFee_refunds",
+        "operationId": "GetApplicationFeesIdRefunds",
         "parameters": [
           {
             "description": "The identifier of the parent id.",
@@ -54585,7 +54621,10 @@
                     }
                   },
                   "required": [
-                    "object"
+                    "data",
+                    "has_more",
+                    "object",
+                    "url"
                   ],
                   "type": "object"
                 }
@@ -54599,7 +54638,7 @@
     "/v1/customers/{customer}/bank_accounts": {
       "get": {
         "description": "Returns a list of bank_accounts",
-        "operationId": "GetBank_accounts",
+        "operationId": "GetCustomersCustomerBankAccounts",
         "parameters": [
           {
             "description": "The identifier of the parent customer.",
@@ -54655,7 +54694,10 @@
                     }
                   },
                   "required": [
-                    "object"
+                    "data",
+                    "has_more",
+                    "object",
+                    "url"
                   ],
                   "type": "object"
                 }
@@ -54669,7 +54711,7 @@
     "/v1/customers/{customer}/payment_methods": {
       "get": {
         "description": "Returns a list of payment_methods",
-        "operationId": "GetPayment_methods",
+        "operationId": "GetCustomersCustomerPaymentMethods",
         "parameters": [
           {
             "description": "The identifier of the parent customer.",
@@ -54725,7 +54767,10 @@
                     }
                   },
                   "required": [
-                    "object"
+                    "data",
+                    "has_more",
+                    "object",
+                    "url"
                   ],
                   "type": "object"
                 }
@@ -54739,7 +54784,7 @@
     "/v1/accounts/{account}/external_accounts": {
       "get": {
         "description": "Returns a list of bank_accounts",
-        "operationId": "GetBank_accounts",
+        "operationId": "GetAccountsAccountExternalAccounts",
         "parameters": [
           {
             "description": "The identifier of the parent account.",
@@ -54795,7 +54840,10 @@
                     }
                   },
                   "required": [
-                    "object"
+                    "data",
+                    "has_more",
+                    "object",
+                    "url"
                   ],
                   "type": "object"
                 }
@@ -54809,7 +54857,7 @@
     "/v1/accounts/{account}/persons": {
       "get": {
         "description": "Returns a list of persons",
-        "operationId": "GetPersons",
+        "operationId": "GetAccountsAccountPersons",
         "parameters": [
           {
             "description": "The identifier of the parent account.",
@@ -54865,7 +54913,10 @@
                     }
                   },
                   "required": [
-                    "object"
+                    "data",
+                    "has_more",
+                    "object",
+                    "url"
                   ],
                   "type": "object"
                 }
