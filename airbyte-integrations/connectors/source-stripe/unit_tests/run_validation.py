@@ -105,7 +105,6 @@ def parse_stringified_fields(data):
     return data
 
 
-
 def validate_record(record_data, schema_name, spec):
     """
     Validates a record dictionary against the OpenAPI schema definition.
