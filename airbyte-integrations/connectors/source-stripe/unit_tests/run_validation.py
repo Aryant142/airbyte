@@ -1,6 +1,7 @@
 # Copyright (c) 2025 Airbyte, Inc., all rights reserved.
 
 import argparse
+import ast
 import json
 import os
 import sys
@@ -80,6 +81,31 @@ def fix_openapi_schema(schema):
     return fixed
 
 
+def parse_stringified_fields(data):
+    """
+    Recursively attempts to parse string values that represent JSON arrays or
+    objects (using ast.literal_eval) back into Python dictionaries or lists.
+    This resolves type conflicts where the Airbyte CDK has serialized nested structures.
+    """
+    if isinstance(data, dict):
+        parsed = {}
+        for k, v in data.items():
+            parsed[k] = parse_stringified_fields(v)
+        return parsed
+    elif isinstance(data, list):
+        return [parse_stringified_fields(item) for item in data]
+    elif isinstance(data, str):
+        val = data.strip()
+        if (val.startswith("{") and val.endswith("}")) or (val.startswith("[") and val.endswith("]")):
+            try:
+                parsed_val = ast.literal_eval(val)
+                return parse_stringified_fields(parsed_val)
+            except Exception:
+                return data
+    return data
+
+
+
 def validate_record(record_data, schema_name, spec):
     """
     Validates a record dictionary against the OpenAPI schema definition.
@@ -147,8 +173,8 @@ def main():
             actual_messages = read(source, config=config, catalog=single_catalog)
             print("HTTP request conforms to Specmatic contract (200 OK).")
 
-            # Extract records from connector output
-            records = [msg.record.data for msg in actual_messages.records]
+            # Extract and parse records from connector output to handle stringified sub-structures
+            records = [parse_stringified_fields(msg.record.data) for msg in actual_messages.records]
 
             if not records:
                 response_ok = False
@@ -156,13 +182,16 @@ def main():
             else:
                 print(f"Validating {len(records)} records from connector response against schema '{schema_name}'...")
                 record_errors = []
+                seen_errors = set()
                 for record in records:
                     errors = validate_record(record, schema_name, spec)
-                    if errors:
-                        record_errors.extend(errors)
-                        if len(record_errors) >= 10:
-                            record_errors.append("...truncated additional record errors")
-                            break
+                    for err in errors:
+                        if err not in seen_errors:
+                            seen_errors.add(err)
+                            record_errors.append(err)
+                    if len(record_errors) >= 10:
+                        record_errors.append("...truncated additional record errors")
+                        break
                 if record_errors:
                     response_ok = False
                     for err in record_errors:

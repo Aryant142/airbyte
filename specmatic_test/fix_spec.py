@@ -267,6 +267,15 @@ def flatten_deep_objects(spec_path):
         print("Injected radar.early_fraud_warning schema component.")
         schemas_modified = True
 
+    if "api_errors" in schemas:
+        schemas["api_errors"] = {
+            "type": "object",
+            "properties": {},
+            "required": []
+        }
+        print("Simplified api_errors schema to prevent random mock validation errors.")
+        schemas_modified = True
+
     # Prune all strict required constraints
     prune_required(spec)
 

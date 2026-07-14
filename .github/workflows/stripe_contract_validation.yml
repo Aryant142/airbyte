@@ -31,7 +31,7 @@ jobs:
 
       - name: Start Specmatic Mock Server (Official Contract)
         run: |
-          specmatic mock --port 9000 &
+          specmatic mock --host 0.0.0.0 --port 9000 &
           echo "Waiting for mock server to initialize..."
           sleep 5
 
@@ -54,7 +54,7 @@ jobs:
       - name: Start Specmatic Mock Server (Drifted Contract)
         run: |
           sed -i 's/stripe-official.json/stripe-drifted.json/' specmatic.yaml
-          specmatic mock --port 9000 &
+          specmatic mock --host 0.0.0.0 --port 9000 &
           echo "Waiting for mock server to initialize..."
           sleep 5
 
