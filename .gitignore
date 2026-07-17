@@ -122,3 +122,7 @@ airbyte-integrations/connectors/**/airbyte-cdk-load/
 # AI
 AGENT.md
 .claude/settings.local.json
+
+# Specmatic log files
+specmatic_out.log
+specmatic_server.log

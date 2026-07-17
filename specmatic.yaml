@@ -24,3 +24,12 @@ dependencies:
   services:
     - service:
         $ref: "#/components/services/stripeService"
+
+specmatic:
+  governance:
+    report:
+      formats:
+        - html
+        - ctrf
+      outputDirectory: build/reports/specmatic
+

@@ -16,6 +16,9 @@ jobs:
   validate-contract:
     name: Run Contract Validation
     runs-on: ubuntu-latest
+    permissions:
+      checks: write
+      contents: read
 
     steps:
       - name: Checkout code
@@ -67,10 +70,77 @@ jobs:
             sh -c "pip install pytest freezegun pytest-mock requests-mock mock airbyte-cdk==6.61.6 requests pyyaml jsonschema && python /workspace/airbyte-integrations/connectors/source-stripe/unit_tests/run_validation.py --spec-path /workspace/specmatic_test/specs/stripe-drifted.json --report-output /workspace/specmatic_test/drift_report.md --host host.docker.internal"
         continue-on-error: true
 
+      - name: Stop Drifted Mock Server
+        run: |
+          pkill -f "specmatic mock" || true
+          sleep 2
+        if: always()
+
+      - name: Start Accounts Stub Server
+        run: |
+          python specmatic_test/accounts_stub_server.py --port 3000 --host 0.0.0.0 &
+          echo "Waiting for stub server..."
+          for i in {1..15}; do
+            curl -s http://localhost:3000/health && break
+            sleep 1
+          done
+        if: always()
+
+      - name: Run Specmatic Accounts Contract Test
+        run: |
+          docker run --rm \
+            --add-host=host.docker.internal:host-gateway \
+            -v "${{ github.workspace }}:/usr/src/app" \
+            -w /usr/src/app \
+            specmatic/specmatic:2.49.1 test \
+            --host=host.docker.internal \
+            --port=3000 \
+            --config specmatic-accounts-test.yaml \
+            --timeout=30 \
+            --junitReportDir=build/reports/specmatic/junit
+        continue-on-error: true
+        if: always()
+
+      - name: Stop Accounts Stub Server
+        run: |
+          pkill -f "accounts_stub_server.py" || true
+        if: always()
+
+      - name: Convert JUnit XML to CTRF JSON
+        run: |
+          npx junit-to-ctrf build/reports/specmatic/junit/*.xml --output build/reports/specmatic/ctrf-report.json
+        if: always()
+
+      - name: Publish Official Summary
+        run: |
+          if [ -f specmatic_test/official_report.md ]; then
+            cat specmatic_test/official_report.md >> $GITHUB_STEP_SUMMARY
+          fi
+        if: always()
+
+      - name: Publish Drift Summary
+        run: |
+          if [ -f specmatic_test/drift_report.md ]; then
+            cat specmatic_test/drift_report.md >> $GITHUB_STEP_SUMMARY
+          fi
+        if: always()
+
+      - name: Publish CTRF Test Report
+        uses: ctrf-io/github-test-reporter@v1
+        with:
+          report-path: 'build/reports/specmatic/**/*.json'
+          github-report: true
+          annotate: true
+        if: always()
+
       - name: Upload Validation Reports
         uses: actions/upload-artifact@v4
         with:
           name: contract-validation-reports
           path: |
             specmatic_test/official_report.md
+            specmatic_test/official_report.html
             specmatic_test/drift_report.md
+            specmatic_test/drift_report.html
+            build/reports/specmatic/
+        if: always()
