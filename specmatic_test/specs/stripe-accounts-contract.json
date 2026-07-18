@@ -20,13 +20,7 @@
             "in": "query",
             "required": false,
             "description": "A limit on the number of objects to be returned (1-100).",
-            "schema": { "type": "integer", "minimum": 1, "maximum": 100 },
-            "examples": {
-              "bad_limit": {
-                "summary": "Invalid limit of 0 triggers a 400",
-                "value": 0
-              }
-            }
+            "schema": { "type": "integer", "minimum": 1, "maximum": 100 }
           },
           {
             "name": "starting_after",
@@ -47,13 +41,7 @@
             "in": "header",
             "required": false,
             "description": "Bearer token for authentication. Send 'Bearer invalid_key_12345' to trigger a 401.",
-            "schema": { "type": "string" },
-            "examples": {
-              "no_auth": {
-                "summary": "Invalid Bearer token triggers a 401",
-                "value": "Bearer invalid_key_12345"
-              }
-            }
+            "schema": { "type": "string" }
           }
         ],
         "responses": {
@@ -69,19 +57,7 @@
             "description": "Bad request — e.g. invalid parameter value.",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/ErrorResponse" },
-                "examples": {
-                  "bad_limit": {
-                    "summary": "limit=0 is outside the allowed range [1, 100]",
-                    "value": {
-                      "error": {
-                        "type": "invalid_request_error",
-                        "message": "Invalid integer: 0 is not within the allowed range [1, 100].",
-                        "code": "parameter_invalid_integer"
-                      }
-                    }
-                  }
-                }
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
               }
             }
           },
@@ -89,19 +65,7 @@
             "description": "Unauthorized — invalid or missing API key.",
             "content": {
               "application/json": {
-                "schema": { "$ref": "#/components/schemas/ErrorResponse" },
-                "examples": {
-                  "no_auth": {
-                    "summary": "The provided API key is not valid",
-                    "value": {
-                      "error": {
-                        "type": "invalid_request_error",
-                        "message": "No such API key: Bearer invalid_key_12345.",
-                        "code": "api_key_missing"
-                      }
-                    }
-                  }
-                }
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
               }
             }
           }

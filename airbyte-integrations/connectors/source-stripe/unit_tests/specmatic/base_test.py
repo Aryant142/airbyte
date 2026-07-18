@@ -31,8 +31,15 @@ class SpecmaticIntegrationTestCase(unittest.TestCase):
     def setUpClass(cls):
         # Resolve repository paths relative to this file
         current_file = Path(__file__).resolve()
-        # Find repo root (airbyte-master)
-        repo_root = current_file.parents[5]  # airbyte-master
+        # Find repo root dynamically by scanning parent directories for specmatic.yaml
+        repo_root = None
+        for parent in current_file.parents:
+            if (parent / "specmatic.yaml").exists():
+                repo_root = parent
+                break
+        if not repo_root:
+            repo_root = current_file.parents[5]  # Fallback: airbyte-master
+
         fix_spec_script = repo_root / "specmatic_test" / "fix_spec.py"
 
         # Determine if we are running inside Docker

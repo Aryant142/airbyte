@@ -177,11 +177,14 @@ self.set_specmatic_expectation(
 | `specs/stripe-official.json` | Preprocessed official Stripe OpenAPI spec used by the Specmatic mock server |
 | `specs/stripe-drifted.json` | Modified spec with intentional drift — used to verify contract violation detection |
 | `specs/stripe-accounts-contract.json` | Minimal contract spec covering only the `GET /v1/accounts` endpoint |
+| `specs/stripe-accounts-contract_examples/` | Directory containing externalized mock test examples (`success.json`, `bad_limit.json`, `no_auth.json`) |
+| `specs/stripe-accounts-contract_dictionary.yaml` | Domain-specific dictionary specifying real-world mock data templates (e.g. `acct_` IDs, custom domains) for generative tests |
 | `fix_spec.py` | Preprocesses the spec: flattens deepObject params, duplicates array params, injects missing paths, patches missing query params, and filters paths based on whitelisted streams |
 | `specmatic.yaml` | Specmatic configuration referencing the spec file for MOCK mode |
 | `specmatic-accounts-test.yaml` | Specmatic configuration referencing the accounts spec file for TEST mode |
 | `accounts_stub_server.py` | HTTP stub server that acts as a target for Specmatic TEST mode contract verification |
 | `run_contract_test.ps1` | Orchestrates starting the accounts stub server, running Specmatic tests, and generating reports |
+| `docker-compose.yml` | Container orchestrator config to run the stub server, mock server, and test runner in a clean, unified sandbox |
 | `official_report.md` | Output of the contract validation runner against the official spec |
 | `drift_report.md` | Output of the contract validation runner against the drifted spec |
 
@@ -264,8 +267,15 @@ python specmatic_test/fix_spec.py
 ### 2. Run against the Official Stripe Specification
 
 1. Start the Specmatic mock server from the repo root:
+
+   **Using Specmatic CLI (Direct):**
    ```bash
    specmatic mock --port 9000
+   ```
+
+   **Using Docker Compose:**
+   ```bash
+   docker compose -f specmatic_test/docker-compose.yml up specmatic-mock
    ```
 2. Run the validation runner:
    - **macOS / Linux:**
@@ -359,6 +369,13 @@ docker run --rm \
   --host=host.docker.internal --port=3000 \
   --config specmatic-accounts-test.yaml \
   --timeout=30
+```
+
+**Using Docker Compose (Cross-Platform):**
+```bash
+# Automatically starts the accounts stub server, waits for its health check,
+# runs the Specmatic contract tests, and exits.
+docker compose -f specmatic_test/docker-compose.yml up specmatic-test --exit-code-from specmatic-test
 ```
 
 ### 3. View the generated reports:

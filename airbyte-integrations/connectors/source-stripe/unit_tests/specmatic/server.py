@@ -64,7 +64,7 @@ class SpecmaticServer:
             )
 
             # Wait for mock server to be ready
-            ready_url = f"http://{self.host}:{self.port}/actuator/health"
+            ready_url = f"http://{self.host}:{self.port}/_specmatic/expectations"
             retries = 30
             for i in range(retries):
                 if self.process.poll() is not None:
