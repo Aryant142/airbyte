@@ -25,7 +25,7 @@
     Requirements:
         - Python 3.x in PATH
         - Docker Desktop running
-        - Docker image: specmatic/specmatic:2.49.1 (pulled automatically if missing)
+        - Docker image: specmatic/specmatic:2.50.1 (pulled automatically if missing)
 #>
 
 Set-StrictMode -Version Latest
@@ -38,7 +38,7 @@ $StubPort       = 3000
 $StubHost       = "0.0.0.0"
 $HealthUrl      = "http://127.0.0.1:$StubPort/health"
 $StubScript     = "specmatic_test\accounts_stub_server.py"
-$SpecmaticImage = "specmatic/specmatic:2.49.1"
+$SpecmaticImage = "specmatic/specmatic:2.50.1"
 $ConfigFile     = "specmatic-accounts-test.yaml"
 $ReportDir      = "build\reports\specmatic"
 $MaxWaitSecs    = 15
@@ -118,6 +118,7 @@ $dockerArgs = @(
     "-v", "${PWD}:/usr/src/app",
     "-v", "$env:USERPROFILE/.specmatic:/root/.specmatic",
     "-w", "/usr/src/app",
+    "-e", "endpointsAPI=http://host.docker.internal:3000/actuator/mappings",
     $SpecmaticImage,
     "test",
     "--host=host.docker.internal",

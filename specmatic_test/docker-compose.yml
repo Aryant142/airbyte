@@ -21,7 +21,7 @@ services:
 
   # 2. Specmatic Contract Test Runner (executes tests against the stub-server)
   specmatic-test:
-    image: specmatic/specmatic:2.49.1
+    image: specmatic/specmatic:2.50.1
     container_name: specmatic-test-runner
     depends_on:
       stub-server:
@@ -30,11 +30,13 @@ services:
       - ..:/usr/src/app
       - ~/.specmatic:/root/.specmatic
     working_dir: /usr/src/app
+    environment:
+      - endpointsAPI=http://stub-server:3000/actuator/mappings
     command: test --host=stub-server --port=3000 --config=specmatic-accounts-test.yaml --timeout=30 --junitReportDir=build/reports/specmatic/junit
 
   # 3. Specmatic Mock Server (mocks Stripe APIs for integration tests)
   specmatic-mock:
-    image: specmatic/specmatic:2.49.1
+    image: specmatic/specmatic:2.50.1
     container_name: specmatic-mock-server
     volumes:
       - ..:/usr/src/app

@@ -15,7 +15,7 @@ class SpecmaticServer:
         self.host = host
         self.process = None
 
-    def start(self, repo_root: Path, fix_spec_script: Path) -> None:
+    def start(self, repo_root: Path) -> None:
         # Check if a Specmatic mock server is already running on this port
         import socket
         try:
@@ -32,8 +32,6 @@ class SpecmaticServer:
 
         specmatic_bin = shutil.which("specmatic")
         if specmatic_bin:
-            print("Running fix_spec.py to modify specification...")
-            subprocess.run([sys.executable, str(fix_spec_script)], check=True, cwd=str(repo_root))
 
             log_file = repo_root / "specmatic_server.log"
             self.log_file_handle = open(log_file, "w", encoding="utf-8")
@@ -113,7 +111,13 @@ class SpecmaticServer:
                     if self.process.poll() is not None:
                         graceful = True
                         break
-                    time.sleep(0.5)
+                    try:
+                        time.sleep(0.5)
+                    except KeyboardInterrupt:
+                        # CTRL_C_EVENT we sent was also delivered to Python at the OS
+                        # level (we share the same process group). Swallow it here so
+                        # the poll loop can complete and pytest exits cleanly.
+                        pass
             except Exception as e:
                 print(f"Graceful shutdown signal failed: {e}")
 

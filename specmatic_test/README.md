@@ -7,7 +7,7 @@ This directory contains the tools, OpenAPI specifications, and scripts required 
 > - Node.js 18+
 > - Python 3.11+
 > - Docker
-> - Specmatic v2.49.1+
+> - Specmatic v2.50.1+
 
 ---
 
@@ -49,10 +49,7 @@ Specmatic Mock Server
 Stripe OpenAPI Specification
         │
         ▼
-Validation Report
-```
-
-After validation, the runner generates a **Contract Drift Report**, highlighting any deviations from the official Stripe OpenAPI specification.
+After validation, Specmatic generates native **HTML** and **CTRF** reports under `build/reports/specmatic/`.
 
 ---
 
@@ -77,12 +74,6 @@ Tests now communicate with a live **Specmatic Mock Server** generated from the S
 
 ```text
 Stripe OpenAPI Specification
-          │
-          ▼
-     fix_spec.py
-          │
-          ▼
- Modified OpenAPI Specification
           │
           ▼
  Specmatic Mock Server
@@ -113,8 +104,15 @@ This significantly reduces mock maintenance while automatically detecting contra
 | | `test_setup_attempts.py` | ✅ Migrated |
 | | `test_transactions.py` | ✅ Migrated |
 | **POC** | `test_accounts.py` | ✅ Migrated (original POC) |
+| **Batch 3** — 100% Specmatic Mock Usage Coverage | `test_charges_specmatic.py` | ✅ Added |
+| | `test_customers_specmatic.py` | ✅ Added |
+| | `test_invoices_specmatic.py` | ✅ Added |
+| | `test_payment_intents_specmatic.py` | ✅ Added |
+| | `test_prices_specmatic.py` | ✅ Added |
+| | `test_products_specmatic.py` | ✅ Added |
+| | `test_refunds_specmatic.py` | ✅ Added |
 
-** All migrated tests pass.**
+** All migrated tests pass. Batch 3 achieves 100% Specmatic Mock Usage Report coverage for all 8 endpoints in `stripe-official.json`.**
 
 ---
 
@@ -174,19 +172,15 @@ self.set_specmatic_expectation(
 
 | File | Description |
 |---|---|
-| `specs/stripe-official.json` | Preprocessed official Stripe OpenAPI spec used by the Specmatic mock server |
-| `specs/stripe-drifted.json` | Modified spec with intentional drift — used to verify contract violation detection |
+| `specs/stripe-official.json` | Official Stripe OpenAPI spec used by the Specmatic mock server |
 | `specs/stripe-accounts-contract.json` | Minimal contract spec covering only the `GET /v1/accounts` endpoint |
 | `specs/stripe-accounts-contract_examples/` | Directory containing externalized mock test examples (`success.json`, `bad_limit.json`, `no_auth.json`) |
 | `specs/stripe-accounts-contract_dictionary.yaml` | Domain-specific dictionary specifying real-world mock data templates (e.g. `acct_` IDs, custom domains) for generative tests |
-| `fix_spec.py` | Preprocesses the spec: flattens deepObject params, duplicates array params, injects missing paths, patches missing query params, and filters paths based on whitelisted streams |
 | `specmatic.yaml` | Specmatic configuration referencing the spec file for MOCK mode |
 | `specmatic-accounts-test.yaml` | Specmatic configuration referencing the accounts spec file for TEST mode |
 | `accounts_stub_server.py` | HTTP stub server that acts as a target for Specmatic TEST mode contract verification |
 | `run_contract_test.ps1` | Orchestrates starting the accounts stub server, running Specmatic tests, and generating reports |
 | `docker-compose.yml` | Container orchestrator config to run the stub server, mock server, and test runner in a clean, unified sandbox |
-| `official_report.md` | Output of the contract validation runner against the official spec |
-| `drift_report.md` | Output of the contract validation runner against the drifted spec |
 
 | Test Infrastructure | Location |
 |---|---|
@@ -201,7 +195,7 @@ self.set_specmatic_expectation(
 ### Prerequisites
 
 ```bash
-npm install -g specmatic@2.49.1
+npm install -g specmatic@2.50.1
 ```
 
 ### Run a single migrated test file
@@ -216,6 +210,20 @@ cd airbyte-integrations/connectors/source-stripe/unit_tests
 ```bash
 cd airbyte-integrations/connectors/source-stripe/unit_tests
 ./.venv/bin/python -m pytest -v integration/test_events.py
+```
+
+### Run all Specmatic integration tests (100% Mock Usage Coverage)
+
+**Windows (PowerShell):**
+```powershell
+cd airbyte-integrations/connectors/source-stripe/unit_tests
+.\.venv\Scripts\python.exe -m pytest -v integration/ -k "specmatic or accounts"
+```
+
+**macOS / Linux:**
+```bash
+cd airbyte-integrations/connectors/source-stripe/unit_tests
+./.venv/bin/python -m pytest -v integration/*_specmatic.py integration/test_accounts.py
 ```
 
 ### Run all migrated Batch 1 + Batch 2 tests
@@ -258,13 +266,7 @@ cd airbyte-integrations/connectors/source-stripe/unit_tests
 
 ## How to Run Contract Validation Locally
 
-### 1. Preprocess the spec
-
-```bash
-python specmatic_test/fix_spec.py
-```
-
-### 2. Run against the Official Stripe Specification
+### 1. Run against the Official Stripe Specification
 
 1. Start the Specmatic mock server from the repo root:
 
@@ -292,39 +294,11 @@ python specmatic_test/fix_spec.py
        --add-host=host.docker.internal:host-gateway `
        -v "${PWD}:/workspace" `
        python:3.11-slim `
-       sh -c "pip install pytest freezegun pytest-mock requests-mock mock airbyte-cdk==6.61.6 requests pyyaml jsonschema && python /workspace/airbyte-integrations/connectors/source-stripe/unit_tests/run_validation.py --spec-path /workspace/specmatic_test/specs/stripe-official.json --report-output /workspace/specmatic_test/official_report.md --host host.docker.internal"
+       sh -c "pip install pytest freezegun pytest-mock requests-mock mock airbyte-cdk==6.61.6 requests pyyaml jsonschema && python /workspace/airbyte-integrations/connectors/source-stripe/unit_tests/run_validation.py --spec-path /workspace/specmatic_test/specs/stripe-official.json --host host.docker.internal"
      ```
-3. Inspect the report at `specmatic_test/official_report.md`.
+3. Inspect the native HTML and CTRF reports generated in `build/reports/specmatic/`.
 
-### 3. Run against the Drifted Stripe Specification
-
-To test drift detection, update `specmatic.yaml` to reference `stripe-drifted.json`, then:
-
-1. Start the drifted mock server:
-   ```bash
-   specmatic mock --port 9000
-   ```
-2. Run the validation runner targeting the drifted spec:
-   - **macOS / Linux:**
-     ```bash
-     docker run --rm \
-       --add-host=host.docker.internal:host-gateway \
-       -v "$(pwd):/workspace" \
-       python:3.11-slim \
-       sh -c "pip install pytest freezegun pytest-mock requests-mock mock airbyte-cdk==6.61.6 requests pyyaml jsonschema && python /workspace/airbyte-integrations/connectors/source-stripe/unit_tests/run_validation.py --spec-path /workspace/specmatic_test/specs/stripe-drifted.json --report-output /workspace/specmatic_test/drift_report.md --host host.docker.internal"
-     ```
-   - **Windows (PowerShell):**
-     ```powershell
-     docker run --rm `
-       --add-host=host.docker.internal:host-gateway `
-       -v "${PWD}:/workspace" `
-       python:3.11-slim `
-       sh -c "pip install pytest freezegun pytest-mock requests-mock mock airbyte-cdk==6.61.6 requests pyyaml jsonschema && python /workspace/airbyte-integrations/connectors/source-stripe/unit_tests/run_validation.py --spec-path /workspace/specmatic_test/specs/stripe-drifted.json --report-output /workspace/specmatic_test/drift_report.md --host host.docker.internal"
-     ```
-3. Inspect the drift report at `specmatic_test/drift_report.md`.
-4. Revert `specmatic.yaml` back to `stripe-official.json` when done.
-
-### 4. Validate Specification and Examples Locally
+### 2. Validate Specification and Examples Locally
 
 To validate that inline or external examples and the API specification conform to OpenAPI schemas, run Specmatic's built-in validation command:
 
@@ -365,7 +339,7 @@ docker run --rm \
   -v "$(pwd):/usr/src/app" \
   -v "$HOME/.specmatic:/root/.specmatic" \
   -w /usr/src/app \
-  specmatic/specmatic:2.49.1 test \
+  specmatic/specmatic:2.50.1 test \
   --host=host.docker.internal --port=3000 \
   --config specmatic-accounts-test.yaml \
   --timeout=30
@@ -377,7 +351,3 @@ docker run --rm \
 # runs the Specmatic contract tests, and exits.
 docker compose -f specmatic_test/docker-compose.yml up specmatic-test --exit-code-from specmatic-test
 ```
-
-### 3. View the generated reports:
-*   HTML report: `build/reports/specmatic/accounts/test/html/index.html`
-*   JSON summary: `build/reports/specmatic/accounts/ctrf-report.json`

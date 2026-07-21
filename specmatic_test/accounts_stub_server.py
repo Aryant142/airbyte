@@ -24,7 +24,7 @@ Then in a separate terminal run run_contract_test.ps1 or:
       -v "${PWD}:/usr/src/app" \
       -v "${env:USERPROFILE}/.specmatic:/root/.specmatic" \
       -w /usr/src/app \
-      specmatic/specmatic:2.49.1 test \
+      specmatic/specmatic:2.50.1 test \
       --host=host.docker.internal --port=3000 \
       --config specmatic-accounts-test.yaml \
       --timeout=30
@@ -174,6 +174,32 @@ class AccountsStubHandler(BaseHTTPRequestHandler):
         # ------------------------------------------------------------------
         if path in ("/health", "/actuator/health"):
             self._send_json(200, {"status": "UP"})
+            return
+
+        if path == "/actuator/mappings":
+            mappings = {
+                "contexts": {
+                    "application": {
+                        "mappings": {
+                            "dispatcherServlets": {
+                                "dispatcherServlet": [
+                                    {
+                                        "handler": "AccountsController#getV1Accounts",
+                                        "predicate": "{GET [/v1/accounts]}",
+                                        "details": {
+                                            "requestMappingConditions": {
+                                                "methods": ["GET"],
+                                                "patterns": ["/v1/accounts"]
+                                            }
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                }
+            }
+            self._send_json(200, mappings)
             return
 
         # ------------------------------------------------------------------

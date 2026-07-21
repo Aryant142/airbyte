@@ -18,13 +18,10 @@ class SpecmaticIntegrationTestCase(unittest.TestCase):
     specmatic_port: int = 9000
     specmatic_host: str = "127.0.0.1"
 
-    # Class-level server instance
+    # Shared server instance across test classes
+    _shared_server: Optional[SpecmaticServer] = None
     _server: Optional[SpecmaticServer] = None
-
-    # Config to override url_base
     config: Dict[str, Any] = {}
-
-    # Source instance created during test
     source: Optional[YamlDeclarativeSource] = None
 
     @classmethod
@@ -40,8 +37,6 @@ class SpecmaticIntegrationTestCase(unittest.TestCase):
         if not repo_root:
             repo_root = current_file.parents[5]  # Fallback: airbyte-master
 
-        fix_spec_script = repo_root / "specmatic_test" / "fix_spec.py"
-
         # Determine if we are running inside Docker
         is_docker = os.path.exists("/.dockerenv")
         cls.specmatic_host = "host.docker.internal" if is_docker else "127.0.0.1"
@@ -49,14 +44,19 @@ class SpecmaticIntegrationTestCase(unittest.TestCase):
         # Configure url_base for the connector config
         cls.config = {"url_base": f"http://{cls.specmatic_host}:{cls.specmatic_port}/v1/"}
 
-        # Start server
-        cls._server = SpecmaticServer(port=cls.specmatic_port, host=cls.specmatic_host)
-        cls._server.start(repo_root=repo_root, fix_spec_script=fix_spec_script)
+        # Start shared server if not already started
+        if SpecmaticIntegrationTestCase._shared_server is None:
+            server = SpecmaticServer(port=cls.specmatic_port, host=cls.specmatic_host)
+            server.start(repo_root=repo_root)
+            SpecmaticIntegrationTestCase._shared_server = server
+            import atexit
+            atexit.register(server.stop)
+        cls._server = SpecmaticIntegrationTestCase._shared_server
 
     @classmethod
     def tearDownClass(cls):
-        if cls._server:
-            cls._server.stop()
+        # Keep server running for subsequent test classes; atexit will shut it down cleanly at process exit.
+        pass
 
     def setUp(self) -> None:
         super().setUp()
