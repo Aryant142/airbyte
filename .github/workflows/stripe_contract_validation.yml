@@ -30,7 +30,7 @@ jobs:
           node-version: 20
 
       - name: Install Specmatic
-        run: npm install -g specmatic@2.49.1
+        run: npm install -g specmatic@2.50.1
 
       - name: Start Specmatic Mock Server (Official Contract)
         run: |
@@ -92,7 +92,7 @@ jobs:
             --add-host=host.docker.internal:host-gateway \
             -v "${{ github.workspace }}:/usr/src/app" \
             -w /usr/src/app \
-            specmatic/specmatic:2.49.1 test \
+            specmatic/specmatic:2.50.1 test \
             --host=host.docker.internal \
             --port=3000 \
             --config specmatic-accounts-test.yaml \
