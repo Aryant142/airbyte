@@ -24,6 +24,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
@@ -31,6 +36,13 @@ jobs:
 
       - name: Install Specmatic
         run: npm install -g specmatic@2.50.1
+
+      - name: Run Specmatic Integration Tests (Generates Stub Report)
+        run: |
+          pip install pytest freezegun pytest-mock requests-mock mock airbyte-cdk==6.61.6 requests pyyaml jsonschema
+          cd airbyte-integrations/connectors/source-stripe/unit_tests
+          pytest -v integration/*_specmatic.py integration/test_accounts.py
+        continue-on-error: true
 
       - name: Start Specmatic Mock Server (Official Contract)
         run: |
