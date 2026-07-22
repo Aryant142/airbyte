@@ -66,18 +66,17 @@ jobs:
 
       - name: Run Specmatic Accounts Contract Test (Generates Test Report with Actuator ON)
         run: |
-          docker run --rm \
-            --add-host=host.docker.internal:host-gateway \
-            -v "${{ github.workspace }}:/usr/src/app" \
-            -w /usr/src/app \
-            -e endpointsAPI=http://host.docker.internal:3000/actuator/mappings \
-            specmatic/specmatic:2.50.1 test \
-            --host=host.docker.internal \
+          specmatic test \
+            --host=127.0.0.1 \
             --port=3000 \
-            --config specmatic-accounts-test.yaml \
-            --endpointsAPI=http://host.docker.internal:3000/actuator/mappings \
+            --config=specmatic-accounts-test.yaml \
+            --endpointsAPI=http://127.0.0.1:3000/actuator/mappings \
             --timeout=30 \
             --junitReportDir=build/reports/specmatic/junit
+          mkdir -p build/reports/specmatic/test/html
+          if [ -d "build/reports/specmatic/accounts/test/html" ]; then
+            cp -r build/reports/specmatic/accounts/test/html/* build/reports/specmatic/test/html/
+          fi
         continue-on-error: true
         if: always()
 
