@@ -66,11 +66,10 @@ jobs:
 
       - name: Run Specmatic Accounts Contract Test (Generates Test Report with Actuator ON)
         run: |
-          specmatic test \
+          endpointsAPI=http://127.0.0.1:3000/actuator/mappings specmatic test \
             --host=127.0.0.1 \
             --port=3000 \
             --config=specmatic-accounts-test.yaml \
-            --endpointsAPI=http://127.0.0.1:3000/actuator/mappings \
             --timeout=30 \
             --junitReportDir=build/reports/specmatic/junit
           mkdir -p build/reports/specmatic/test/html
