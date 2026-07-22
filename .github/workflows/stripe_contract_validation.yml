@@ -40,8 +40,12 @@ jobs:
       - name: Run Specmatic Integration Tests (Generates Stub Report)
         run: |
           pip install pytest freezegun pytest-mock requests-mock mock airbyte-cdk==6.61.6 requests pyyaml jsonschema
-          cd airbyte-integrations/connectors/source-stripe/unit_tests
-          pytest -v integration/test_accounts.py integration/test_charges_specmatic.py integration/test_customers_specmatic.py integration/test_invoices_specmatic.py integration/test_payment_intents_specmatic.py integration/test_prices_specmatic.py integration/test_products_specmatic.py integration/test_refunds_specmatic.py
+          export PYTHONPATH=$PYTHONPATH:$(pwd)/airbyte-integrations/connectors/source-stripe/unit_tests
+          pytest -v airbyte-integrations/connectors/source-stripe/unit_tests/integration/test_accounts.py airbyte-integrations/connectors/source-stripe/unit_tests/integration/test_charges_specmatic.py airbyte-integrations/connectors/source-stripe/unit_tests/integration/test_customers_specmatic.py airbyte-integrations/connectors/source-stripe/unit_tests/integration/test_invoices_specmatic.py airbyte-integrations/connectors/source-stripe/unit_tests/integration/test_payment_intents_specmatic.py airbyte-integrations/connectors/source-stripe/unit_tests/integration/test_prices_specmatic.py airbyte-integrations/connectors/source-stripe/unit_tests/integration/test_products_specmatic.py airbyte-integrations/connectors/source-stripe/unit_tests/integration/test_refunds_specmatic.py
+          mkdir -p build/reports/specmatic
+          if [ -d "airbyte-integrations/connectors/source-stripe/unit_tests/build/reports/specmatic" ]; then
+            cp -r airbyte-integrations/connectors/source-stripe/unit_tests/build/reports/specmatic/* build/reports/specmatic/
+          fi
         continue-on-error: true
 
       - name: Start Accounts Stub Server
@@ -78,13 +82,14 @@ jobs:
 
       - name: Convert JUnit XML to CTRF JSON
         run: |
-          npx junit-to-ctrf build/reports/specmatic/junit/*.xml --output build/reports/specmatic/ctrf-report.json
+          mkdir -p build/reports/specmatic/junit
+          npx junit-to-ctrf build/reports/specmatic/junit/*.xml --output build/reports/specmatic/ctrf-report.json || true
         if: always()
 
       - name: Publish CTRF Test Report
         uses: ctrf-io/github-test-reporter@v1
         with:
-          report-path: "build/reports/specmatic/ctrf-report.json"
+          report-path: "**/ctrf-report.json"
           github-report: true
           annotate: true
         if: always()
@@ -93,5 +98,8 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: specmatic-reports
-          path: build/reports/specmatic/
+          path: |
+            build/reports/specmatic/
+            airbyte-integrations/connectors/source-stripe/unit_tests/build/reports/specmatic/
+          if-no-files-found: warn
         if: always()
