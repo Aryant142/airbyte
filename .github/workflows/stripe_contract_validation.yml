@@ -84,10 +84,7 @@ jobs:
       - name: Publish CTRF Test Report
         uses: ctrf-io/github-test-reporter@v1
         with:
-          report-path: |
-            build/reports/specmatic/test/*.json
-            build/reports/specmatic/stub/*.json
-            build/reports/specmatic/*.json
+          report-path: "build/reports/specmatic/ctrf-report.json"
           github-report: true
           annotate: true
         if: always()
@@ -96,8 +93,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: specmatic-reports
-          path: |
-            build/reports/specmatic/test/html/
-            build/reports/specmatic/stub/html/
-            build/reports/specmatic/**/*.json
+          path: build/reports/specmatic/
         if: always()
