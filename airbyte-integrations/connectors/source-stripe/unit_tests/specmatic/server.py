@@ -44,12 +44,28 @@ class SpecmaticServer:
             # hooks (which write the Specmatic HTML coverage report).
             creation_flags = 0
             cmd_args = [specmatic_bin, "mock", f"--port={self.port}", f"--host={self.host}"]
-            if os.name == 'nt':
-                if specmatic_bin.upper().endswith('.CMD'):
-                    npm_dir = Path(specmatic_bin).parent
-                    jar_path = npm_dir / "node_modules" / "specmatic" / "specmatic.jar"
-                    if jar_path.exists() and shutil.which("java"):
-                        cmd_args = ["java", "-jar", str(jar_path), "mock", f"--port={self.port}", f"--host={self.host}"]
+            
+            # Find specmatic.jar to launch Java process directly on all platforms.
+            # Direct Java execution ensures SIGINT reaches the JVM process directly so JVM shutdown hooks run and write Specmatic reports.
+            java_bin = shutil.which("java")
+            if java_bin:
+                jar_candidates = []
+                bin_path = Path(specmatic_bin).resolve()
+                jar_candidates.append(bin_path.parent / "node_modules" / "specmatic" / "specmatic.jar")
+                jar_candidates.append(bin_path.parent.parent / "lib" / "node_modules" / "specmatic" / "specmatic.jar")
+                jar_candidates.append(bin_path.parent.parent / "node_modules" / "specmatic" / "specmatic.jar")
+                try:
+                    npm_root = subprocess.check_output(["npm", "root", "-g"], text=True, timeout=5).strip()
+                    if npm_root:
+                        jar_candidates.append(Path(npm_root) / "specmatic" / "specmatic.jar")
+                except Exception:
+                    pass
+
+                for jar_path in jar_candidates:
+                    if jar_path.exists():
+                        cmd_args = [java_bin, "-jar", str(jar_path), "mock", f"--port={self.port}", f"--host={self.host}"]
+                        print(f"Launching Specmatic via direct Java command: {' '.join(cmd_args)}")
+                        break
 
             self.process = subprocess.Popen(
                 cmd_args,
