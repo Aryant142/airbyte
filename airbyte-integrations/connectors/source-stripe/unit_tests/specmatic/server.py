@@ -61,23 +61,18 @@ class SpecmaticServer:
                 creationflags=creation_flags,
             )
 
-            # Wait for mock server to be ready
-            ready_url = f"http://{self.host}:{self.port}/_specmatic/expectations"
+            # Wait for mock server to be ready using socket connection to avoid sending unhandled HTTP requests
+            import socket
             retries = 30
             for i in range(retries):
                 if self.process.poll() is not None:
                     raise RuntimeError(f"Specmatic mock server failed to start. Check {log_file} for details.")
                 try:
-                    # Connection check (non-blocking if server is up, regardless of status code)
-                    requests.get(ready_url, timeout=1)
-                    print("Specmatic mock server is ready.")
-                    return
-                except requests.exceptions.ConnectionError:
+                    with socket.create_connection((self.host, self.port), timeout=1):
+                        print("Specmatic mock server is ready.")
+                        return
+                except (OSError, ConnectionRefusedError):
                     pass
-                except requests.RequestException:
-                    # Other request exceptions (like bad status code) mean the server is listening!
-                    print("Specmatic mock server is ready.")
-                    return
                 time.sleep(0.5)
 
             # If we timeout

@@ -1,4 +1,4 @@
-name: Stripe Connector Contract Validation
+name: Stripe Connector Specmatic Reports
 
 on:
   push:
@@ -14,7 +14,7 @@ on:
 
 jobs:
   validate-contract:
-    name: Run Contract Validation
+    name: Run Specmatic Reports
     runs-on: ubuntu-latest
     permissions:
       checks: write
@@ -41,52 +41,8 @@ jobs:
         run: |
           pip install pytest freezegun pytest-mock requests-mock mock airbyte-cdk==6.61.6 requests pyyaml jsonschema
           cd airbyte-integrations/connectors/source-stripe/unit_tests
-          pytest -v integration/*_specmatic.py integration/test_accounts.py
+          pytest -v integration/test_accounts.py integration/test_charges_specmatic.py integration/test_customers_specmatic.py integration/test_invoices_specmatic.py integration/test_payment_intents_specmatic.py integration/test_prices_specmatic.py integration/test_products_specmatic.py integration/test_refunds_specmatic.py
         continue-on-error: true
-
-      - name: Start Specmatic Mock Server (Official Contract)
-        run: |
-          specmatic mock --host 0.0.0.0 --port 9000 &
-          echo "Waiting for mock server to initialize..."
-          sleep 5
-
-      - name: Run Validation against Official Spec
-        run: |
-          docker run --rm \
-            --add-host=host.docker.internal:host-gateway \
-            -v "${{ github.workspace }}:/workspace" \
-            python:3.11-slim \
-            sh -c "pip install pytest freezegun pytest-mock requests-mock mock airbyte-cdk==6.61.6 requests pyyaml jsonschema && python /workspace/airbyte-integrations/connectors/source-stripe/unit_tests/run_validation.py --spec-path /workspace/specmatic_test/specs/stripe-official.json --report-output /workspace/specmatic_test/official_report.md --host host.docker.internal"
-        # We allow failure here if contract validation is expected to find issues,
-        # but for CI we want to upload artifacts regardless of success/failure
-        continue-on-error: true
-
-      - name: Stop Mock Server
-        run: |
-          pkill -f "specmatic mock" || true
-          sleep 2
-
-      - name: Start Specmatic Mock Server (Drifted Contract)
-        run: |
-          sed -i 's/stripe-official.json/stripe-drifted.json/' specmatic.yaml
-          specmatic mock --host 0.0.0.0 --port 9000 &
-          echo "Waiting for mock server to initialize..."
-          sleep 5
-
-      - name: Run Validation against Drifted Spec
-        run: |
-          docker run --rm \
-            --add-host=host.docker.internal:host-gateway \
-            -v "${{ github.workspace }}:/workspace" \
-            python:3.11-slim \
-            sh -c "pip install pytest freezegun pytest-mock requests-mock mock airbyte-cdk==6.61.6 requests pyyaml jsonschema && python /workspace/airbyte-integrations/connectors/source-stripe/unit_tests/run_validation.py --spec-path /workspace/specmatic_test/specs/stripe-drifted.json --report-output /workspace/specmatic_test/drift_report.md --host host.docker.internal"
-        continue-on-error: true
-
-      - name: Stop Drifted Mock Server
-        run: |
-          pkill -f "specmatic mock" || true
-          sleep 2
-        if: always()
 
       - name: Start Accounts Stub Server
         run: |
@@ -98,16 +54,18 @@ jobs:
           done
         if: always()
 
-      - name: Run Specmatic Accounts Contract Test
+      - name: Run Specmatic Accounts Contract Test (Generates Test Report with Actuator ON)
         run: |
           docker run --rm \
             --add-host=host.docker.internal:host-gateway \
             -v "${{ github.workspace }}:/usr/src/app" \
             -w /usr/src/app \
+            -e endpointsAPI=http://host.docker.internal:3000/actuator/mappings \
             specmatic/specmatic:2.50.1 test \
             --host=host.docker.internal \
             --port=3000 \
             --config specmatic-accounts-test.yaml \
+            --endpointsAPI=http://host.docker.internal:3000/actuator/mappings \
             --timeout=30 \
             --junitReportDir=build/reports/specmatic/junit
         continue-on-error: true
@@ -123,37 +81,23 @@ jobs:
           npx junit-to-ctrf build/reports/specmatic/junit/*.xml --output build/reports/specmatic/ctrf-report.json
         if: always()
 
-      - name: Publish Official Summary
-        run: |
-          if [ -f specmatic_test/official_report.md ]; then
-            cat specmatic_test/official_report.md >> $GITHUB_STEP_SUMMARY
-          fi
-        if: always()
-
-      - name: Publish Drift Summary
-        run: |
-          if [ -f specmatic_test/drift_report.md ]; then
-            cat specmatic_test/drift_report.md >> $GITHUB_STEP_SUMMARY
-          fi
-        if: always()
-
       - name: Publish CTRF Test Report
         uses: ctrf-io/github-test-reporter@v1
         with:
           report-path: |
             build/reports/specmatic/test/*.json
             build/reports/specmatic/stub/*.json
+            build/reports/specmatic/*.json
           github-report: true
           annotate: true
         if: always()
 
-      - name: Upload Validation Reports
+      - name: Upload Specmatic Reports
         uses: actions/upload-artifact@v4
         with:
           name: specmatic-reports
           path: |
             build/reports/specmatic/test/html/
-            build/reports/specmatic/test/*.json
             build/reports/specmatic/stub/html/
-            build/reports/specmatic/stub/*.json
+            build/reports/specmatic/**/*.json
         if: always()

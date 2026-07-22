@@ -212,18 +212,30 @@ cd airbyte-integrations/connectors/source-stripe/unit_tests
 ./.venv/bin/python -m pytest -v integration/test_events.py
 ```
 
-### Run all Specmatic integration tests (100% Mock Usage Coverage)
+### Run ONLY Specmatic integration tests (100% Mock Usage Coverage)
 
-**Windows (PowerShell):**
+**Windows (PowerShell) — Dynamic One-Liner (from repository root):**
 ```powershell
-cd airbyte-integrations/connectors/source-stripe/unit_tests
-.\.venv\Scripts\python.exe -m pytest -v integration/ -k "specmatic or accounts"
+$s = (Get-ChildItem airbyte-integrations/connectors/source-stripe/unit_tests/integration/test_*_specmatic.py).FullName; .\airbyte-integrations\connectors\source-stripe\unit_tests\.venv\Scripts\pytest.exe airbyte-integrations/connectors/source-stripe/unit_tests/integration/test_accounts.py $s
 ```
 
-**macOS / Linux:**
+**Windows (PowerShell) — Explicit File List:**
+```powershell
+.\airbyte-integrations\connectors\source-stripe\unit_tests\.venv\Scripts\pytest.exe `
+  airbyte-integrations/connectors/source-stripe/unit_tests/integration/test_accounts.py `
+  airbyte-integrations/connectors/source-stripe/unit_tests/integration/test_charges_specmatic.py `
+  airbyte-integrations/connectors/source-stripe/unit_tests/integration/test_customers_specmatic.py `
+  airbyte-integrations/connectors/source-stripe/unit_tests/integration/test_invoices_specmatic.py `
+  airbyte-integrations/connectors/source-stripe/unit_tests/integration/test_payment_intents_specmatic.py `
+  airbyte-integrations/connectors/source-stripe/unit_tests/integration/test_prices_specmatic.py `
+  airbyte-integrations/connectors/source-stripe/unit_tests/integration/test_products_specmatic.py `
+  airbyte-integrations/connectors/source-stripe/unit_tests/integration/test_refunds_specmatic.py
+```
+
+**macOS / Linux — from repository root:**
 ```bash
 cd airbyte-integrations/connectors/source-stripe/unit_tests
-./.venv/bin/python -m pytest -v integration/*_specmatic.py integration/test_accounts.py
+./.venv/bin/python -m pytest -v integration/test_accounts.py integration/*_specmatic.py
 ```
 
 ### Run all migrated Batch 1 + Batch 2 tests

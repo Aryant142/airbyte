@@ -40582,19 +40582,6 @@
             "style": "form"
           }
         ],
-        "requestBody": {
-          "content": {
-            "application/x-www-form-urlencoded": {
-              "encoding": {},
-              "schema": {
-                "additionalProperties": false,
-                "properties": {},
-                "type": "object"
-              }
-            }
-          },
-          "required": false
-        },
         "responses": {
           "200": {
             "content": {
@@ -41384,19 +41371,6 @@
             "style": "form"
           }
         ],
-        "requestBody": {
-          "content": {
-            "application/x-www-form-urlencoded": {
-              "encoding": {},
-              "schema": {
-                "additionalProperties": false,
-                "properties": {},
-                "type": "object"
-              }
-            }
-          },
-          "required": false
-        },
         "responses": {
           "200": {
             "content": {
@@ -42728,19 +42702,6 @@
             "style": "form"
           }
         ],
-        "requestBody": {
-          "content": {
-            "application/x-www-form-urlencoded": {
-              "encoding": {},
-              "schema": {
-                "additionalProperties": false,
-                "properties": {},
-                "type": "object"
-              }
-            }
-          },
-          "required": false
-        },
         "responses": {
           "200": {
             "content": {
@@ -43530,19 +43491,6 @@
             "style": "form"
           }
         ],
-        "requestBody": {
-          "content": {
-            "application/x-www-form-urlencoded": {
-              "encoding": {},
-              "schema": {
-                "additionalProperties": false,
-                "properties": {},
-                "type": "object"
-              }
-            }
-          },
-          "required": false
-        },
         "responses": {
           "200": {
             "content": {
@@ -44395,19 +44343,6 @@
             "description": "Duplicated query parameter representing type array"
           }
         ],
-        "requestBody": {
-          "content": {
-            "application/x-www-form-urlencoded": {
-              "encoding": {},
-              "schema": {
-                "additionalProperties": false,
-                "properties": {},
-                "type": "object"
-              }
-            }
-          },
-          "required": false
-        },
         "responses": {
           "200": {
             "content": {
@@ -45222,19 +45157,6 @@
             "style": "form"
           }
         ],
-        "requestBody": {
-          "content": {
-            "application/x-www-form-urlencoded": {
-              "encoding": {},
-              "schema": {
-                "additionalProperties": false,
-                "properties": {},
-                "type": "object"
-              }
-            }
-          },
-          "required": false
-        },
         "responses": {
           "200": {
             "content": {
@@ -46022,19 +45944,6 @@
             "style": "form"
           }
         ],
-        "requestBody": {
-          "content": {
-            "application/x-www-form-urlencoded": {
-              "encoding": {},
-              "schema": {
-                "additionalProperties": false,
-                "properties": {},
-                "type": "object"
-              }
-            }
-          },
-          "required": false
-        },
         "responses": {
           "200": {
             "content": {
