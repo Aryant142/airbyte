@@ -404,9 +404,7 @@ class IncrementalTest(SpecmaticIntegrationTestCase):
 
         assert len(output.records) == 3
 
-    def test_given_state_earlier_than_30_days_when_read_then_query_events_using_types_and_event_lower_boundary(
-        self
-    ) -> None:
+    def test_given_state_earlier_than_30_days_when_read_then_query_events_using_types_and_event_lower_boundary(self) -> None:
         start_date = _NOW - timedelta(days=40)
         state_value = _NOW - timedelta(days=39)
         events_lower_boundary = _NOW - timedelta(days=30)

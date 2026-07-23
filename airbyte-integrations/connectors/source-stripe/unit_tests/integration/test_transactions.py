@@ -182,7 +182,11 @@ class FullRefreshTest(SpecmaticIntegrationTestCase):
     def test_given_http_status_400_when_read_then_stream_did_not_run(self) -> None:
         self.set_specmatic_expectation(
             path="/v1/issuing/transactions",
-            query={"created[gte]": str(int((_NOW_IMPORT - timedelta(days=75)).timestamp())), "created[lte]": str(int(_NOW_IMPORT.timestamp())), "limit": "100"},
+            query={
+                "created[gte]": str(int((_NOW_IMPORT - timedelta(days=75)).timestamp())),
+                "created[lte]": str(int(_NOW_IMPORT.timestamp())),
+                "limit": "100",
+            },
             response_body={"error": {"message": "Bad request"}},
             status_code=400,
         )
@@ -193,7 +197,11 @@ class FullRefreshTest(SpecmaticIntegrationTestCase):
     def test_given_http_status_401_when_read_then_config_error(self) -> None:
         self.set_specmatic_expectation(
             path="/v1/issuing/transactions",
-            query={"created[gte]": str(int((_NOW_IMPORT - timedelta(days=75)).timestamp())), "created[lte]": str(int(_NOW_IMPORT.timestamp())), "limit": "100"},
+            query={
+                "created[gte]": str(int((_NOW_IMPORT - timedelta(days=75)).timestamp())),
+                "created[lte]": str(int(_NOW_IMPORT.timestamp())),
+                "limit": "100",
+            },
             response_body={"error": {"message": "Unauthorized"}},
             status_code=401,
         )
@@ -220,7 +228,11 @@ class FullRefreshTest(SpecmaticIntegrationTestCase):
     def test_given_http_status_500_once_before_200_when_read_then_retry_and_return_records(self) -> None:
         self.set_specmatic_expectation(
             path="/v1/issuing/transactions",
-            query={"created[gte]": str(int((_NOW_IMPORT - timedelta(days=75)).timestamp())), "created[lte]": str(int(_NOW_IMPORT.timestamp())), "limit": "100"},
+            query={
+                "created[gte]": str(int((_NOW_IMPORT - timedelta(days=75)).timestamp())),
+                "created[lte]": str(int(_NOW_IMPORT.timestamp())),
+                "limit": "100",
+            },
             response_body={
                 "object": "list",
                 "url": "/v1/issuing/transactions",
@@ -235,7 +247,11 @@ class FullRefreshTest(SpecmaticIntegrationTestCase):
     def test_given_http_status_500_when_read_then_raise_config_error(self) -> None:
         self.set_specmatic_expectation(
             path="/v1/issuing/transactions",
-            query={"created[gte]": str(int((_NOW_IMPORT - timedelta(days=75)).timestamp())), "created[lte]": str(int(_NOW_IMPORT.timestamp())), "limit": "100"},
+            query={
+                "created[gte]": str(int((_NOW_IMPORT - timedelta(days=75)).timestamp())),
+                "created[lte]": str(int(_NOW_IMPORT.timestamp())),
+                "limit": "100",
+            },
             response_body={"error": {"message": "Internal Server Error"}},
             status_code=500,
         )

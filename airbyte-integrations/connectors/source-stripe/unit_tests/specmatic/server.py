@@ -18,6 +18,7 @@ class SpecmaticServer:
     def start(self, repo_root: Path) -> None:
         # Check if a Specmatic mock server is already running on this port
         import socket
+
         try:
             with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
                 s.settimeout(0.5)
@@ -32,11 +33,11 @@ class SpecmaticServer:
 
         specmatic_bin = shutil.which("specmatic")
         if specmatic_bin:
-
             log_file = repo_root / "specmatic_server.log"
             self.log_file_handle = open(log_file, "w", encoding="utf-8")
             print(f"Starting Specmatic mock server on {self.host}:{self.port} (logging to {log_file})...")
             import os
+
             # NOTE: Do NOT use CREATE_NEW_PROCESS_GROUP on Windows.
             # With that flag, CTRL_C_EVENT cannot reach the child process.
             # Without it, Java inherits Python's process group, so we can
@@ -52,7 +53,7 @@ class SpecmaticServer:
 
             creation_flags = 0
             cmd_args = [specmatic_bin, "mock", f"--port={self.port}", f"--host={self.host}", "--config", str(config_file)]
-            
+
             # Find specmatic.jar to launch Java process directly on all platforms.
             # Direct Java execution ensures SIGINT reaches the JVM process directly so JVM shutdown hooks run and write Specmatic reports.
             java_bin = shutil.which("java")
@@ -71,7 +72,16 @@ class SpecmaticServer:
 
                 for jar_path in jar_candidates:
                     if jar_path.exists():
-                        cmd_args = [java_bin, "-jar", str(jar_path), "mock", f"--port={self.port}", f"--host={self.host}", "--config", str(config_file)]
+                        cmd_args = [
+                            java_bin,
+                            "-jar",
+                            str(jar_path),
+                            "mock",
+                            f"--port={self.port}",
+                            f"--host={self.host}",
+                            "--config",
+                            str(config_file),
+                        ]
                         print(f"Launching Specmatic via direct Java command: {' '.join(cmd_args)}")
                         break
 
@@ -87,6 +97,7 @@ class SpecmaticServer:
 
             # Wait for mock server to be ready using socket connection to avoid sending unhandled HTTP requests
             import socket
+
             retries = 30
             for i in range(retries):
                 if self.process.poll() is not None:
@@ -111,9 +122,10 @@ class SpecmaticServer:
             print("Terminating Specmatic mock server...")
             import os
             import signal
+
             graceful = False
             try:
-                if os.name == 'nt':
+                if os.name == "nt":
                     # Java shares Python's process group (no CREATE_NEW_PROCESS_GROUP).
                     # Temporarily suppress Python's own SIGINT so only Java handles it.
                     # CTRL_C_EVENT to process group 0 = broadcast to entire shared group.

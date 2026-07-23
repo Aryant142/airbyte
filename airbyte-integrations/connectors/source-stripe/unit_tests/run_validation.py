@@ -155,7 +155,7 @@ def write_html_report(results, violations, overall_status, html_path):
         resp_val = "Conforming" if r["response"] == "✅" else "Violated"
         req_icon = r["request"]
         resp_icon = r["response"]
-        
+
         # Details action
         details_btn = ""
         details_row = ""
@@ -172,14 +172,14 @@ def write_html_report(results, violations, overall_status, html_path):
                 </td>
             </tr>
             """
-            
+
         table_rows += f"""
         <tr class="stream-row status-{status_class}">
             <td class="stream-name">{stream_name}</td>
-            <td><span class="val-badge {r['request'] == '✅'}"><span class="icon">{req_icon}</span> {req_val}</span></td>
-            <td><span class="val-badge {r['response'] == '✅'}"><span class="icon">{resp_icon}</span> {resp_val}</span></td>
+            <td><span class="val-badge {r["request"] == "✅"}"><span class="icon">{req_icon}</span> {req_val}</span></td>
+            <td><span class="val-badge {r["response"] == "✅"}"><span class="icon">{resp_icon}</span> {resp_val}</span></td>
             <td>{details_btn}</td>
-            <td><span class="status-badge {status_class}">{r['status']}</span></td>
+            <td><span class="status-badge {status_class}">{r["status"]}</span></td>
         </tr>
         {details_row}
         """
@@ -779,7 +779,7 @@ def main():
                 f.write("\n")
 
     print(f"Validation finished. Overall status: {overall_status}")
-    
+
     # Generate companion HTML report
     html_report_path = str(Path(args.report_output).with_suffix(".html"))
     write_html_report(results, violations, overall_status, html_report_path)

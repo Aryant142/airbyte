@@ -146,7 +146,12 @@ class FullRefreshTest(SpecmaticIntegrationTestCase):
     def test_given_one_page_when_read_then_return_records(self) -> None:
         self.set_specmatic_expectation(
             path="/v1/customers",
-            query={"created[gte]": str(int(_A_START_DATE.timestamp())), "created[lte]": str(int(_NOW.timestamp())), "limit": "100", "expand[]": ["data.sources"]},
+            query={
+                "created[gte]": str(int(_A_START_DATE.timestamp())),
+                "created[lte]": str(int(_NOW.timestamp())),
+                "limit": "100",
+                "expand[]": ["data.sources"],
+            },
             response_body={
                 "object": "list",
                 "url": "/v1/customers",
@@ -182,7 +187,12 @@ class FullRefreshTest(SpecmaticIntegrationTestCase):
     def test_given_source_is_not_bank_account_when_read_then_filter_record(self) -> None:
         self.set_specmatic_expectation(
             path="/v1/customers",
-            query={"created[gte]": str(int(_A_START_DATE.timestamp())), "created[lte]": str(int(_NOW.timestamp())), "limit": "100", "expand[]": ["data.sources"]},
+            query={
+                "created[gte]": str(int(_A_START_DATE.timestamp())),
+                "created[lte]": str(int(_NOW.timestamp())),
+                "limit": "100",
+                "expand[]": ["data.sources"],
+            },
             response_body={
                 "object": "list",
                 "url": "/v1/customers",
@@ -207,7 +217,12 @@ class FullRefreshTest(SpecmaticIntegrationTestCase):
     def test_given_multiple_bank_accounts_pages_when_read_then_query_pagination_on_child(self) -> None:
         self.set_specmatic_expectation(
             path="/v1/customers",
-            query={"created[gte]": str(int(_A_START_DATE.timestamp())), "created[lte]": str(int(_NOW.timestamp())), "limit": "100", "expand[]": ["data.sources"]},
+            query={
+                "created[gte]": str(int(_A_START_DATE.timestamp())),
+                "created[lte]": str(int(_NOW.timestamp())),
+                "limit": "100",
+                "expand[]": ["data.sources"],
+            },
             response_body={
                 "object": "list",
                 "url": "/v1/customers",
@@ -243,7 +258,12 @@ class FullRefreshTest(SpecmaticIntegrationTestCase):
     def test_given_multiple_customers_pages_when_read_then_query_pagination_on_parent(self) -> None:
         self.set_specmatic_expectation(
             path="/v1/customers",
-            query={"created[gte]": str(int(_A_START_DATE.timestamp())), "created[lte]": str(int(_NOW.timestamp())), "limit": "100", "expand[]": ["data.sources"]},
+            query={
+                "created[gte]": str(int(_A_START_DATE.timestamp())),
+                "created[lte]": str(int(_NOW.timestamp())),
+                "limit": "100",
+                "expand[]": ["data.sources"],
+            },
             response_body={
                 "object": "list",
                 "url": "/v1/customers",
@@ -296,7 +316,12 @@ class FullRefreshTest(SpecmaticIntegrationTestCase):
     def test_given_parent_stream_without_bank_accounts_when_read_then_stream_did_not_run(self) -> None:
         self.set_specmatic_expectation(
             path="/v1/customers",
-            query={"created[gte]": str(int(_A_START_DATE.timestamp())), "created[lte]": str(int(_NOW.timestamp())), "limit": "100", "expand[]": ["data.sources"]},
+            query={
+                "created[gte]": str(int(_A_START_DATE.timestamp())),
+                "created[lte]": str(int(_NOW.timestamp())),
+                "limit": "100",
+                "expand[]": ["data.sources"],
+            },
             response_body={"object": "list", "url": "/v1/customers", "has_more": False, "data": []},
         )
 
@@ -336,7 +361,12 @@ class FullRefreshTest(SpecmaticIntegrationTestCase):
         )
         self.set_specmatic_expectation(
             path="/v1/customers",
-            query={"created[gte]": str(int(slice_datetime.timestamp())), "created[lte]": str(int(_NOW.timestamp())), "limit": "100", "expand[]": ["data.sources"]},
+            query={
+                "created[gte]": str(int(slice_datetime.timestamp())),
+                "created[lte]": str(int(_NOW.timestamp())),
+                "limit": "100",
+                "expand[]": ["data.sources"],
+            },
             response_body={
                 "object": "list",
                 "url": "/v1/customers",
@@ -402,7 +432,12 @@ class FullRefreshTest(SpecmaticIntegrationTestCase):
         )
         self.set_specmatic_expectation(
             path="/v1/customers",
-            query={"created[gte]": str(int(slice_datetime.timestamp())), "created[lte]": str(int(_NOW.timestamp())), "limit": "100", "expand[]": ["data.sources"]},
+            query={
+                "created[gte]": str(int(slice_datetime.timestamp())),
+                "created[lte]": str(int(_NOW.timestamp())),
+                "limit": "100",
+                "expand[]": ["data.sources"],
+            },
             response_body={"object": "list", "url": "/v1/customers", "has_more": False, "data": []},
         )
 
@@ -411,7 +446,12 @@ class FullRefreshTest(SpecmaticIntegrationTestCase):
     def test_given_no_state_when_read_then_return_ignore_lookback(self) -> None:
         self.set_specmatic_expectation(
             path="/v1/customers",
-            query={"created[gte]": str(int(_A_START_DATE.timestamp())), "created[lte]": str(int(_NOW.timestamp())), "limit": "100", "expand[]": ["data.sources"]},
+            query={
+                "created[gte]": str(int(_A_START_DATE.timestamp())),
+                "created[lte]": str(int(_NOW.timestamp())),
+                "limit": "100",
+                "expand[]": ["data.sources"],
+            },
             response_body={
                 "object": "list",
                 "url": "/v1/customers",
@@ -425,7 +465,12 @@ class FullRefreshTest(SpecmaticIntegrationTestCase):
     def test_given_one_page_when_read_then_cursor_field_is_set(self) -> None:
         self.set_specmatic_expectation(
             path="/v1/customers",
-            query={"created[gte]": str(int(_A_START_DATE.timestamp())), "created[lte]": str(int(_NOW.timestamp())), "limit": "100", "expand[]": ["data.sources"]},
+            query={
+                "created[gte]": str(int(_A_START_DATE.timestamp())),
+                "created[lte]": str(int(_NOW.timestamp())),
+                "limit": "100",
+                "expand[]": ["data.sources"],
+            },
             response_body={
                 "object": "list",
                 "url": "/v1/customers",
@@ -451,7 +496,12 @@ class FullRefreshTest(SpecmaticIntegrationTestCase):
     def test_given_http_status_401_when_read_then_config_error(self) -> None:
         self.set_specmatic_expectation(
             path="/v1/customers",
-            query={"created[gte]": str(int((_NOW - timedelta(days=75)).timestamp())), "created[lte]": str(int(_NOW.timestamp())), "limit": "100", "expand[]": ["data.sources"]},
+            query={
+                "created[gte]": str(int((_NOW - timedelta(days=75)).timestamp())),
+                "created[lte]": str(int(_NOW.timestamp())),
+                "limit": "100",
+                "expand[]": ["data.sources"],
+            },
             response_body={"error": {"message": "Invalid API Key"}},
             status_code=401,
         )
@@ -461,7 +511,12 @@ class FullRefreshTest(SpecmaticIntegrationTestCase):
     def test_given_rate_limited_when_read_then_retry_and_return_records(self) -> None:
         self.set_specmatic_expectation(
             path="/v1/customers",
-            query={"created[gte]": str(int(_A_START_DATE.timestamp())), "created[lte]": str(int(_NOW.timestamp())), "limit": "100", "expand[]": ["data.sources"]},
+            query={
+                "created[gte]": str(int(_A_START_DATE.timestamp())),
+                "created[lte]": str(int(_NOW.timestamp())),
+                "limit": "100",
+                "expand[]": ["data.sources"],
+            },
             response_body={
                 "object": "list",
                 "url": "/v1/customers",
@@ -486,7 +541,12 @@ class FullRefreshTest(SpecmaticIntegrationTestCase):
     def test_given_http_status_500_when_read_then_raise_config_error(self) -> None:
         self.set_specmatic_expectation(
             path="/v1/customers",
-            query={"created[gte]": str(int((_NOW - timedelta(days=75)).timestamp())), "created[lte]": str(int(_NOW.timestamp())), "limit": "100", "expand[]": ["data.sources"]},
+            query={
+                "created[gte]": str(int((_NOW - timedelta(days=75)).timestamp())),
+                "created[lte]": str(int(_NOW.timestamp())),
+                "limit": "100",
+                "expand[]": ["data.sources"],
+            },
             response_body={"error": {"message": "Internal Server Error"}},
             status_code=500,
         )
@@ -508,7 +568,12 @@ class IncrementalTest(SpecmaticIntegrationTestCase):
     def test_given_no_state_and_successful_sync_when_read_then_set_state_to_now(self) -> None:
         self.set_specmatic_expectation(
             path="/v1/customers",
-            query={"created[gte]": str(int(_A_START_DATE.timestamp())), "created[lte]": str(int(_NOW.timestamp())), "limit": "100", "expand[]": ["data.sources"]},
+            query={
+                "created[gte]": str(int(_A_START_DATE.timestamp())),
+                "created[lte]": str(int(_NOW.timestamp())),
+                "limit": "100",
+                "expand[]": ["data.sources"],
+            },
             response_body={
                 "object": "list",
                 "url": "/v1/customers",
@@ -689,9 +754,7 @@ class IncrementalTest(SpecmaticIntegrationTestCase):
 
         assert len(output.records) == 3
 
-    def test_given_state_earlier_than_30_days_when_read_then_query_events_using_types_and_event_lower_boundary(
-        self
-    ) -> None:
+    def test_given_state_earlier_than_30_days_when_read_then_query_events_using_types_and_event_lower_boundary(self) -> None:
         start_date = _NOW - timedelta(days=40)
         state_value = _NOW - timedelta(days=39)
         events_lower_boundary = _NOW - timedelta(days=30)

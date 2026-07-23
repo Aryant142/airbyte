@@ -19,11 +19,7 @@ _STREAM_NAME = "accounts"
 _ACCOUNT_ID = "acct_1G9HZLIEn49ers"
 _CLIENT_SECRET = "ConfigBuilder default client secret"
 _NOW = datetime.now(timezone.utc)
-_CONFIG = {
-    "client_secret": _CLIENT_SECRET,
-    "account_id": _ACCOUNT_ID,
-    "url_base": "http://127.0.0.1:9000/v1/"
-}
+_CONFIG = {"client_secret": _CLIENT_SECRET, "account_id": _ACCOUNT_ID, "url_base": "http://127.0.0.1:9000/v1/"}
 _NO_STATE = StateBuilder().build()
 
 
@@ -33,7 +29,6 @@ def _create_catalog(sync_mode: SyncMode = SyncMode.full_refresh) -> ConfiguredAi
 
 @freezegun.freeze_time(_NOW.isoformat())
 class AccountsTest(SpecmaticIntegrationTestCase):
-
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -45,17 +40,7 @@ class AccountsTest(SpecmaticIntegrationTestCase):
         self.set_specmatic_expectation(
             path="/v1/accounts",
             query={"limit": "100"},
-            response_body={
-                "object": "list",
-                "url": "/v1/accounts",
-                "has_more": False,
-                "data": [
-                    {
-                        "id": _ACCOUNT_ID,
-                        "object": "account"
-                    }
-                ]
-            }
+            response_body={"object": "list", "url": "/v1/accounts", "has_more": False, "data": [{"id": _ACCOUNT_ID, "object": "account"}]},
         )
 
         self.source = get_source(config=_CONFIG, state=_NO_STATE)
@@ -72,30 +57,15 @@ class AccountsTest(SpecmaticIntegrationTestCase):
                 "object": "list",
                 "url": "/v1/accounts",
                 "has_more": True,
-                "data": [
-                    {
-                        "id": "last_record_id_from_first_page",
-                        "object": "account"
-                    }
-                ]
-            }
+                "data": [{"id": "last_record_id_from_first_page", "object": "account"}],
+            },
         )
 
         # Register Specmatic mock expectation for page 2
         self.set_specmatic_expectation(
             path="/v1/accounts",
             query={"limit": "100", "starting_after": "last_record_id_from_first_page"},
-            response_body={
-                "object": "list",
-                "url": "/v1/accounts",
-                "has_more": False,
-                "data": [
-                    {
-                        "id": _ACCOUNT_ID,
-                        "object": "account"
-                    }
-                ]
-            }
+            response_body={"object": "list", "url": "/v1/accounts", "has_more": False, "data": [{"id": _ACCOUNT_ID, "object": "account"}]},
         )
 
         self.source = get_source(config=_CONFIG, state=_NO_STATE)

@@ -2,4 +2,5 @@
 
 from .base_test import SpecmaticIntegrationTestCase
 
+
 __all__ = ["SpecmaticIntegrationTestCase"]

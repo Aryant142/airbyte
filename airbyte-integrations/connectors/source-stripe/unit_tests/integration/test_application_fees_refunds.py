@@ -420,7 +420,11 @@ class FullRefreshTest(SpecmaticIntegrationTestCase):
     def test_given_http_status_401_when_read_then_config_error(self) -> None:
         self.set_specmatic_expectation(
             path="/v1/application_fees",
-            query={"created[gte]": str(int((_NOW - timedelta(days=75)).timestamp())), "created[lte]": str(int(_NOW.timestamp())), "limit": "100"},
+            query={
+                "created[gte]": str(int((_NOW - timedelta(days=75)).timestamp())),
+                "created[lte]": str(int(_NOW.timestamp())),
+                "limit": "100",
+            },
             response_body={"error": {"message": "Invalid API Key"}},
             status_code=401,
         )
@@ -455,7 +459,11 @@ class FullRefreshTest(SpecmaticIntegrationTestCase):
     def test_given_http_status_500_when_read_then_raise_config_error(self) -> None:
         self.set_specmatic_expectation(
             path="/v1/application_fees",
-            query={"created[gte]": str(int((_NOW - timedelta(days=75)).timestamp())), "created[lte]": str(int(_NOW.timestamp())), "limit": "100"},
+            query={
+                "created[gte]": str(int((_NOW - timedelta(days=75)).timestamp())),
+                "created[lte]": str(int(_NOW.timestamp())),
+                "limit": "100",
+            },
             response_body={"error": {"message": "Internal Server Error"}},
             status_code=500,
         )
@@ -659,9 +667,7 @@ class IncrementalTest(SpecmaticIntegrationTestCase):
 
         assert len(output.records) == 3
 
-    def test_given_state_earlier_than_30_days_when_read_then_query_events_using_types_and_event_lower_boundary(
-        self
-    ) -> None:
+    def test_given_state_earlier_than_30_days_when_read_then_query_events_using_types_and_event_lower_boundary(self) -> None:
         start_date = _NOW - timedelta(days=40)
         state_value = _NOW - timedelta(days=39)
         events_lower_boundary = _NOW - timedelta(days=30)

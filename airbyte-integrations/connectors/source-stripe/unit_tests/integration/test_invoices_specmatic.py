@@ -147,4 +147,3 @@ class InvoicesSpecmaticFullRefreshTest(SpecmaticIntegrationTestCase):
         self.source = get_source(_CONFIG, _NO_STATE)
         output = self._read(_config(now).with_start_date(start_date))
         assert len(output.records) == 0
-

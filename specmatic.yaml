@@ -34,4 +34,3 @@ specmatic:
         - html
         - ctrf
       outputDirectory: build/reports/specmatic
-

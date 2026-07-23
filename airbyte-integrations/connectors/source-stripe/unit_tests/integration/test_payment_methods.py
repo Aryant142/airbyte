@@ -175,7 +175,12 @@ class FullRefreshTest(SpecmaticIntegrationTestCase):
         self.set_specmatic_expectation(
             path="/v1/customers",
             query={"limit": "100"},
-            response_body={"object": "list", "url": "/v1/customers", "has_more": False, "data": [{"id": "parent_id", "object": "customer"}]},
+            response_body={
+                "object": "list",
+                "url": "/v1/customers",
+                "has_more": False,
+                "data": [{"id": "parent_id", "object": "customer"}],
+            },
         )
         self.set_specmatic_expectation(
             path="/v1/customers/parent_id/payment_methods",
@@ -192,7 +197,12 @@ class FullRefreshTest(SpecmaticIntegrationTestCase):
         self.set_specmatic_expectation(
             path="/v1/customers",
             query={"limit": "100"},
-            response_body={"object": "list", "url": "/v1/customers", "has_more": False, "data": [{"id": "parent_id", "object": "customer"}]},
+            response_body={
+                "object": "list",
+                "url": "/v1/customers",
+                "has_more": False,
+                "data": [{"id": "parent_id", "object": "customer"}],
+            },
         )
         self.set_specmatic_expectation(
             path="/v1/customers/parent_id/payment_methods",
@@ -209,7 +219,12 @@ class FullRefreshTest(SpecmaticIntegrationTestCase):
         self.set_specmatic_expectation(
             path="/v1/customers",
             query={"limit": "100"},
-            response_body={"object": "list", "url": "/v1/customers", "has_more": False, "data": [{"id": "parent_id", "object": "customer"}]},
+            response_body={
+                "object": "list",
+                "url": "/v1/customers",
+                "has_more": False,
+                "data": [{"id": "parent_id", "object": "customer"}],
+            },
         )
         self.set_specmatic_expectation(
             path="/v1/customers/parent_id/payment_methods",
@@ -229,7 +244,12 @@ class FullRefreshTest(SpecmaticIntegrationTestCase):
         self.set_specmatic_expectation(
             path="/v1/customers",
             query={"limit": "100"},
-            response_body={"object": "list", "url": "/v1/customers", "has_more": False, "data": [{"id": "parent_id", "object": "customer"}]},
+            response_body={
+                "object": "list",
+                "url": "/v1/customers",
+                "has_more": False,
+                "data": [{"id": "parent_id", "object": "customer"}],
+            },
         )
         self.set_specmatic_expectation(
             path="/v1/customers/parent_id/payment_methods",
@@ -249,7 +269,12 @@ class FullRefreshTest(SpecmaticIntegrationTestCase):
         self.set_specmatic_expectation(
             path="/v1/customers",
             query={"limit": "100"},
-            response_body={"object": "list", "url": "/v1/customers", "has_more": False, "data": [{"id": "parent_id", "object": "customer"}]},
+            response_body={
+                "object": "list",
+                "url": "/v1/customers",
+                "has_more": False,
+                "data": [{"id": "parent_id", "object": "customer"}],
+            },
         )
         self.set_specmatic_expectation(
             path="/v1/customers/parent_id/payment_methods",

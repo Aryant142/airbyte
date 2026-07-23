@@ -50,6 +50,7 @@ class SpecmaticIntegrationTestCase(unittest.TestCase):
             server.start(repo_root=repo_root)
             SpecmaticIntegrationTestCase._shared_server = server
             import atexit
+
             atexit.register(server.stop)
         cls._server = SpecmaticIntegrationTestCase._shared_server
 

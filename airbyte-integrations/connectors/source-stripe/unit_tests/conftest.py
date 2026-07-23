@@ -47,6 +47,7 @@ def delete_cache_files(cache_directory):
     # Try to clear requests_cache to release file handles
     try:
         import requests_cache
+
         requests_cache.clear()
         requests_cache.uninstall_cache()
     except Exception:
