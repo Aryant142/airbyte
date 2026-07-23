@@ -42,8 +42,16 @@ class SpecmaticServer:
             # Without it, Java inherits Python's process group, so we can
             # broadcast CTRL_C_EVENT to the whole group to trigger JVM shutdown
             # hooks (which write the Specmatic HTML coverage report).
+            # Locate specmatic.yaml relative to repo_root or parent directories
+            config_file = repo_root / "specmatic.yaml"
+            if not config_file.exists():
+                for parent in repo_root.parents:
+                    if (parent / "specmatic.yaml").exists():
+                        config_file = parent / "specmatic.yaml"
+                        break
+
             creation_flags = 0
-            cmd_args = [specmatic_bin, "mock", f"--port={self.port}", f"--host={self.host}"]
+            cmd_args = [specmatic_bin, "mock", f"--port={self.port}", f"--host={self.host}", "--config", str(config_file)]
             
             # Find specmatic.jar to launch Java process directly on all platforms.
             # Direct Java execution ensures SIGINT reaches the JVM process directly so JVM shutdown hooks run and write Specmatic reports.
@@ -63,7 +71,7 @@ class SpecmaticServer:
 
                 for jar_path in jar_candidates:
                     if jar_path.exists():
-                        cmd_args = [java_bin, "-jar", str(jar_path), "mock", f"--port={self.port}", f"--host={self.host}"]
+                        cmd_args = [java_bin, "-jar", str(jar_path), "mock", f"--port={self.port}", f"--host={self.host}", "--config", str(config_file)]
                         print(f"Launching Specmatic via direct Java command: {' '.join(cmd_args)}")
                         break
 
