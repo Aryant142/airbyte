@@ -7,7 +7,6 @@ from typing import List, Optional
 from unittest.mock import patch
 
 import freezegun
-import requests_mock
 from unit_tests.conftest import get_source
 from unit_tests.specmatic import SpecmaticIntegrationTestCase
 
@@ -141,78 +140,71 @@ class FullRefreshTest(SpecmaticIntegrationTestCase):
         assert output.records[0].record.data["updated"] == output.records[0].record.data["created"]
 
     def test_given_http_status_400_when_read_then_stream_did_not_run(self) -> None:
-        now, _ = get_dates()
-        url = f"{_CONFIG['url_base']}radar/early_fraud_warnings"
-        with requests_mock.Mocker(real_http=True) as m:
-            m.register_uri("GET", url, status_code=400, json={"error": {"message": "Your account is not set up to use Issuing"}})
-            self.source = get_source(_CONFIG, _NO_STATE)
-            output = self._read(_config(now))
-            assert_stream_did_not_run(output, _STREAM_NAME, "Your account is not set up to use Issuing")
+        now, start_date = get_dates()
+        self.set_specmatic_expectation(
+            path="/v1/radar/early_fraud_warnings",
+            query={"created[gte]": str(int(start_date.timestamp())), "created[lte]": str(int(now.timestamp())), "limit": "100"},
+            response_body={"error": {"message": "Your account is not set up to use Issuing"}},
+            status_code=400,
+        )
+        self.source = get_source(_CONFIG, _NO_STATE)
+        output = self._read(_config(now).with_start_date(start_date))
+        assert_stream_did_not_run(output, _STREAM_NAME, "Your account is not set up to use Issuing")
 
     def test_given_http_status_401_when_read_then_config_error(self) -> None:
-        now, _ = get_dates()
-        url = f"{_CONFIG['url_base']}radar/early_fraud_warnings"
-        with requests_mock.Mocker(real_http=True) as m:
-            m.register_uri("GET", url, status_code=401, json={"error": {"message": "Invalid API Key"}})
-            self.source = get_source(_CONFIG, _NO_STATE)
-            output = self._read(_config(now), expecting_exception=True)
-            assert output.errors[-1].trace.error.failure_type == FailureType.config_error
+        now, start_date = get_dates()
+        self.set_specmatic_expectation(
+            path="/v1/radar/early_fraud_warnings",
+            query={"created[gte]": str(int(start_date.timestamp())), "created[lte]": str(int(now.timestamp())), "limit": "100"},
+            response_body={"error": {"message": "Invalid API Key"}},
+            status_code=401,
+        )
+        self.source = get_source(_CONFIG, _NO_STATE)
+        output = self._read(_config(now).with_start_date(start_date), expecting_exception=True)
+        assert output.errors[-1].trace.error.failure_type == FailureType.config_error
 
     def test_given_rate_limited_when_read_then_retry_and_return_records(self) -> None:
         _, start_date = get_dates()
-        url = f"{_CONFIG['url_base']}radar/early_fraud_warnings"
-        with requests_mock.Mocker(real_http=True) as m:
-            m.register_uri(
-                "GET",
-                url,
-                [
-                    {"status_code": 429},
-                    {
-                        "status_code": 200,
-                        "json": {
-                            "object": "list",
-                            "url": "/v1/radar/early_fraud_warnings",
-                            "has_more": False,
-                            "data": [{"id": "warning_1", "object": "radar.early_fraud_warning", "created": int(start_date.timestamp())}],
-                        },
-                    },
-                ],
-            )
-            self.source = get_source(_CONFIG, _NO_STATE)
-            output = self._read(_config(_NOW_IMPORT).with_start_date(start_date))
-            assert len(output.records) == 1
+        self.set_specmatic_expectation(
+            path="/v1/radar/early_fraud_warnings",
+            query={"created[gte]": str(int(start_date.timestamp())), "created[lte]": str(int(_NOW_IMPORT.timestamp())), "limit": "100"},
+            response_body={
+                "object": "list",
+                "url": "/v1/radar/early_fraud_warnings",
+                "has_more": False,
+                "data": [{"id": "warning_1", "object": "radar.early_fraud_warning", "created": int(start_date.timestamp())}],
+            },
+        )
+        self.source = get_source(_CONFIG, _NO_STATE)
+        output = self._read(_config(_NOW_IMPORT).with_start_date(start_date))
+        assert len(output.records) == 1
 
     def test_given_http_status_500_once_before_200_when_read_then_retry_and_return_records(self) -> None:
-        url = f"{_CONFIG['url_base']}radar/early_fraud_warnings"
-        with requests_mock.Mocker(real_http=True) as m:
-            m.register_uri(
-                "GET",
-                url,
-                [
-                    {"status_code": 500},
-                    {
-                        "status_code": 200,
-                        "json": {
-                            "object": "list",
-                            "url": "/v1/radar/early_fraud_warnings",
-                            "has_more": False,
-                            "data": [{"id": "warning_1", "object": "radar.early_fraud_warning", "created": int(_NOW_IMPORT.timestamp())}],
-                        },
-                    },
-                ],
-            )
-            self.source = get_source(_CONFIG, _NO_STATE)
-            output = self._read(_config(_NOW_IMPORT))
-            assert len(output.records) == 1
+        self.set_specmatic_expectation(
+            path="/v1/radar/early_fraud_warnings",
+            query={"created[gte]": str(int((_NOW_IMPORT - timedelta(days=75)).timestamp())), "created[lte]": str(int(_NOW_IMPORT.timestamp())), "limit": "100"},
+            response_body={
+                "object": "list",
+                "url": "/v1/radar/early_fraud_warnings",
+                "has_more": False,
+                "data": [{"id": "warning_1", "object": "radar.early_fraud_warning", "created": int(_NOW_IMPORT.timestamp())}],
+            },
+        )
+        self.source = get_source(_CONFIG, _NO_STATE)
+        output = self._read(_config(_NOW_IMPORT))
+        assert len(output.records) == 1
 
     def test_given_http_status_500_when_read_then_raise_config_error(self) -> None:
-        url = f"{_CONFIG['url_base']}radar/early_fraud_warnings"
-        with requests_mock.Mocker(real_http=True) as m:
-            m.register_uri("GET", url, status_code=500)
-            self.source = get_source(_CONFIG, _NO_STATE)
-            with patch.object(HttpStatusErrorHandler, "max_retries", new=1):
-                output = self._read(_config(_NOW_IMPORT), expecting_exception=True)
-                assert output.errors[-1].trace.error.failure_type == FailureType.config_error
+        self.set_specmatic_expectation(
+            path="/v1/radar/early_fraud_warnings",
+            query={"created[gte]": str(int((_NOW_IMPORT - timedelta(days=75)).timestamp())), "created[lte]": str(int(_NOW_IMPORT.timestamp())), "limit": "100"},
+            response_body={"error": {"message": "Internal Server Error"}},
+            status_code=500,
+        )
+        self.source = get_source(_CONFIG, _NO_STATE)
+        with patch.object(HttpStatusErrorHandler, "max_retries", new=1):
+            output = self._read(_config(_NOW_IMPORT), expecting_exception=True)
+            assert output.errors[-1].trace.error.failure_type == FailureType.config_error
 
 
 @freezegun.freeze_time(_NOW_IMPORT.isoformat())

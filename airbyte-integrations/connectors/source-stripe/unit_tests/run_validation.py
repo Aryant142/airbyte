@@ -35,6 +35,21 @@ STREAM_MAPPING = {
     "products": "product",
     "prices": "price",
     "refunds": "refund",
+    "application_fees": "application_fee",
+    "authorizations": "issuing.authorization",
+    "cards": "issuing.card",
+    "early_fraud_warnings": "radar.early_fraud_warning",
+    "events": "event",
+    "payment_methods": "payment_method",
+    "payout_balance_transactions": "payout",
+    "reviews": "review",
+    "setup_attempts": "setup_attempt",
+    "transactions": "issuing.transaction",
+    "application_fees_refunds": "fee_refund",
+    "bank_accounts": "bank_account",
+    "external_account_bank_accounts": "bank_account",
+    "external_account_cards": "card",
+    "persons": "person",
 }
 
 
