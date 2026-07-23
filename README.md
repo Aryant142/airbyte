@@ -80,6 +80,12 @@ Airbyte takes security issues very seriously. **Please do not file GitHub issues
 
 [Airbyte Enterprise](https://airbyte.com/airbyte-enterprise) also offers additional security features (among others) on top of Airbyte open-source.
 
+### Contract-Driven Testing with Specmatic
+
+Airbyte supports **OpenAPI Contract Validation** and contract-driven stub testing powered by [Specmatic](https://specmatic.io/). Specmatic ensures that connector HTTP requests and responses conform strictly to official OpenAPI specifications.
+
+For full documentation on running Specmatic contract tests, stub server setup, and viewing HTML coverage reports, see [specmatic_test/README.md](specmatic_test/README.md).
+
 ### License
 
 See the [LICENSE](docs/LICENSE) file for licensing information, and our [FAQ](https://docs.airbyte.com/platform/developer-guides/licenses/license-faq) for any questions you may have on that topic.

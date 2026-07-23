@@ -119,6 +119,7 @@ $dockerArgs = @(
     "-v", "$env:USERPROFILE/.specmatic:/root/.specmatic",
     "-w", "/usr/src/app",
     "-e", "endpointsAPI=http://host.docker.internal:3000/actuator/mappings",
+    "-e", "SPECMATIC_GENERATIVE_TESTS=true",
     $SpecmaticImage,
     "test",
     "--host=host.docker.internal",
