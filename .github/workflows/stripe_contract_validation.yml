@@ -60,7 +60,10 @@ jobs:
           python specmatic_test/accounts_stub_server.py --port 3000 --host 0.0.0.0 &
           echo "Waiting for stub server..."
           for i in {1..15}; do
-            curl -s http://localhost:3000/health && break
+            if curl -sf http://localhost:3000/health; then
+              echo "Stub server is ready!"
+              break
+            fi
             sleep 1
           done
         if: always()
@@ -88,7 +91,9 @@ jobs:
       - name: Convert JUnit XML to CTRF JSON
         run: |
           mkdir -p build/reports/specmatic/junit
-          npx junit-to-ctrf build/reports/specmatic/junit/*.xml --output build/reports/specmatic/ctrf-report.json || true
+          if ls build/reports/specmatic/junit/*.xml 1> /dev/null 2>&1; then
+            npx junit-to-ctrf build/reports/specmatic/junit/*.xml --output build/reports/specmatic/ctrf-report.json || true
+          fi
         if: always()
 
       - name: Publish CTRF Test Report
@@ -97,6 +102,7 @@ jobs:
           report-path: "**/ctrf-report.json"
           github-report: true
           annotate: true
+        continue-on-error: true
         if: always()
 
       - name: Upload Specmatic Reports
